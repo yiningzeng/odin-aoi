@@ -193,7 +193,21 @@ namespace power_aoi
                         long times = sw.ElapsedMilliseconds / 1000;
                         Console.WriteLine("执行总共使用了, total :" + times + "s 秒");
                         //MessageBox.Show("执行查询总共使用了, total :" + times + "s 秒");
-
+                        MySmartThreadPool.Instance().QueueWorkItem(() =>
+                        {
+                            Ftp.MakeDir(Ftp.ftpPath, nowPcb.Id);
+                            string localPath = "";
+                            if (nowPcb.FrontPcb != null)
+                            {
+                                localPath = nowPcb.FrontPcb.savePath;
+                            }
+                            else if (nowPcb.BackPcb != null)
+                            {
+                                localPath = nowPcb.BackPcb.savePath;
+                            }
+                            Ftp.UpLoadFile(localPath + "/front.jpg", Ftp.ftpPath + nowPcb.Id + "/front.jpg");
+                            Ftp.UpLoadFile(localPath + "/back.jpg", Ftp.ftpPath + nowPcb.Id + "/back.jpg");
+                        });
                         MySmartThreadPool.Instance().QueueWorkItem(() =>
                         {
                             try
@@ -1117,44 +1131,6 @@ namespace power_aoi
                                 backWorkingForm.Ini();
                                 backWorkingForm.ShowDefaultImage();
                             }));
-                            //JsonData<Pcb> jsonData = new JsonData<Pcb>();
-                            //jsonData.data = nowPcb;
-                            //RabbitMQClientHandler.GetInstance(onRabbitmqMessageCallback, onRabbitmqConnectCallback)
-                            //.TopicExchangePublishMessageToServerAndWaitConfirm("", "work", "work", JsonConvert.SerializeObject(jsonData));
-                            //string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
-
-                            //if (!Directory.Exists(path))
-                            //{
-                            //    Directory.CreateDirectory(path);
-                            //}
-
-                            //for (int i = 0; i <= 59; i++)
-                            //{
-                            //    Bitmap fBitmap = new Bitmap(Path.Combine(@"D:\SavedPerCameraImages\4.9\test", "F" + i + ".jpg"));
-                            //    Bitmap bBitmap = new Bitmap(Path.Combine(@"D:\SavedPerCameraImages\4.9\test", "B" + i + ".jpg"));
-                            //    nowPcb.FrontPcb.bitmaps.Enqueue(fBitmap);
-                            //    nowPcb.BackPcb.bitmaps.Enqueue(bBitmap);
-                            //    nowPcb.FrontPcb.savePath = path;
-                            //    nowPcb.BackPcb.savePath = path;
-                            //    MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
-                            //    {
-                            //        bitmap.Save(pa, ImageFormat.Jpeg);
-                            //        lock (nowPcb.FrontPcb)
-                            //        {
-                            //            Aoi.StitchMain(nowPcb.FrontPcb, onStitchCallBack);
-                            //        }
-                            //    }, fBitmap, Path.Combine(Path.Combine(path, "F" + i + ".jpg")));
-
-                            //    MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
-                            //    {
-                            //        bitmap.Save(pa, ImageFormat.Jpeg);
-                            //        lock (nowPcb.BackPcb)
-                            //        {
-                            //            Aoi.StitchMain(nowPcb.BackPcb, onStitchCallBack);
-                            //        }
-                            //    }, bBitmap, Path.Combine(Path.Combine(path, "B" + i + ".jpg")));
-                            //}
-
                         }, nowPcb, frontWorkingForm, backWorkingForm);
                         //开始执行拍照
                     }
@@ -1188,7 +1164,9 @@ namespace power_aoi
                     }
                     break;
                 case "开发测试按钮":
-                   
+                    //Ftp.MakeDir(Ftp.ftpPath, "asdsdsd");
+                    //Ftp.UpLoadFile(@"D:\AoiAssets\2020-04-09\25965986241528832\Back.jpg", Ftp.ftpPath + "asdsdsd/Back.jpg");
+                    //Ftp.UploadDirectory(@"D:\AoiAssets\", "2020-04-10");
                     startWork = new StartWork();
                     dialogResult = startWork.ShowDialog();
                     if (dialogResult == DialogResult.Yes)

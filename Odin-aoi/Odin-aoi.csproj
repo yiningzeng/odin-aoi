@@ -332,6 +332,7 @@
     <Compile Include="Tools\DoubleBufferListView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Tools\Ftp.cs" />
     <Compile Include="Tools\Hardware\class_Broad.cs" />
     <Compile Include="Tools\Hardware\Plc.cs" />
     <Compile Include="Tools\Hardware\PLCController.cs" />
