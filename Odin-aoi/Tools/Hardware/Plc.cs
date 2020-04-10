@@ -23,6 +23,7 @@ namespace power_aoi.Tools.Hardware
 
 
         static PlcMessagePopupForm tip;
+        static PlcErrorMessagePopupForm errorTip;
         private static int D2000 = 0;
 
         private static int D2002 = 0;
@@ -134,7 +135,17 @@ namespace power_aoi.Tools.Hardware
                     if (listValue[k] == 1)
                     {
                         string name = Enum.GetName(typeof(HardwareEnum.Alarm), k);
-                        MessageBox.Show(name + "出现报警了，请赶快查看");
+
+                        if (errorTip == null)
+                        {
+                            errorTip = new PlcErrorMessagePopupForm();
+                            errorTip.showTip(name + "出现报警了，请赶快查看");
+                            DialogResult dialogResult = errorTip.ShowDialog();
+                            if (dialogResult == DialogResult.Cancel)
+                            {
+                                errorTip = null;
+                            }
+                        }
                     }
                 }
             }
