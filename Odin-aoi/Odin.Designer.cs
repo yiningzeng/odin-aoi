@@ -125,7 +125,7 @@
             this.初始化窗体布局ToolStripMenuItem.Name = "初始化窗体布局ToolStripMenuItem";
             this.初始化窗体布局ToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.初始化窗体布局ToolStripMenuItem.Text = "初始化窗体布局";
-            this.初始化窗体布局ToolStripMenuItem.Click += new System.EventHandler(this.初始化窗体布局ToolStripMenuItem_Click);
+            this.初始化窗体布局ToolStripMenuItem.Click += new System.EventHandler(this.IniFormToolStripMenuItem_Click);
             // 
             // 保存窗体布局ToolStripMenuItem
             // 
@@ -134,7 +134,7 @@
             this.保存窗体布局ToolStripMenuItem.Name = "保存窗体布局ToolStripMenuItem";
             this.保存窗体布局ToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.保存窗体布局ToolStripMenuItem.Text = "保存窗体布局";
-            this.保存窗体布局ToolStripMenuItem.Click += new System.EventHandler(this.保存窗体布局ToolStripMenuItem_Click);
+            this.保存窗体布局ToolStripMenuItem.Click += new System.EventHandler(this.SaveFormToolStripMenuItem_Click);
             // 
             // tsmClose
             // 
