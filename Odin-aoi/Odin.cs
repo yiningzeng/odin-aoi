@@ -98,12 +98,12 @@ namespace power_aoi
 
             plcCheckReadyTimer.Interval = 100;
             plcCheckReadyTimer.Elapsed += plcCheckReadyTimer_Elapsed;
-            plcFrontCaptureStatusTimer.Interval = 100;
-            plcFrontCaptureStatusTimer.Elapsed += PlcFrontCaptureStatusTimer_Elapsed;
-            plcBackCaptureStatusTimer.Interval = 100;
-            plcBackCaptureStatusTimer.Elapsed += PlcBackCaptureStatusTimer_Elapsed;
-            workDoneTimer.Interval = 100;
-            workDoneTimer.Elapsed += WorkDoneTimer_Elapsed;
+            //plcFrontCaptureStatusTimer.Interval = 100;
+            //plcFrontCaptureStatusTimer.Elapsed += PlcFrontCaptureStatusTimer_Elapsed;
+            //plcBackCaptureStatusTimer.Interval = 100;
+            //plcBackCaptureStatusTimer.Elapsed += PlcBackCaptureStatusTimer_Elapsed;
+            //workDoneTimer.Interval = 100;
+            //workDoneTimer.Elapsed += WorkDoneTimer_Elapsed;
 
             for (int i = 0; i < imageListToolBar.Images.Count; i++)
             {
@@ -192,7 +192,7 @@ namespace power_aoi
         public void aiDone(OneStitchSidePcb oneStitchSidePcb)
         {
             Console.WriteLine(allNum);
-            if (allNum == oneStitchSidePcb.AllNum)
+            if (allNum == oneStitchSidePcb.AllNum * 2)
             {
                 this.BeginInvoke((Action)(() =>
                 {
@@ -242,6 +242,38 @@ namespace power_aoi
                         frontCameraNum = 0;
                         backCameraNum = 0;
                         allNum = 0;
+
+                        isIdle = true;
+                        allNum = 0;
+
+                        //#region 设置一下轨道宽度
+                        //Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5));
+                        //#endregion
+
+                        nowPcb.BackPcb.currentRow = 0;
+                        nowPcb.BackPcb.currentCol = 0;
+                        nowPcb.BackPcb.currentRow = 0;
+                        nowPcb.BackPcb.dst = null;
+                        nowPcb.BackPcb.roi = new Rectangle();
+                        nowPcb.BackPcb.stitchEnd = false;
+
+                        nowPcb.FrontPcb.currentRow = 0;
+                        nowPcb.FrontPcb.currentCol = 0;
+                        nowPcb.FrontPcb.currentRow = 0;
+                        nowPcb.FrontPcb.dst = null;
+                        nowPcb.FrontPcb.roi = new Rectangle();
+                        nowPcb.FrontPcb.stitchEnd = false;
+
+                        frontWorkingForm.BeginInvoke((Action)(() =>
+                        {
+                            frontWorkingForm.Ini();
+                            frontWorkingForm.ShowDefaultImage();
+                        }));
+                        backWorkingForm.BeginInvoke((Action)(() =>
+                        {
+                            backWorkingForm.Ini();
+                            backWorkingForm.ShowDefaultImage();
+                        }));
                     }
                 }));
             }
@@ -412,7 +444,6 @@ namespace power_aoi
                     lock (ALock)
                     {
                         n = AiSdkFront.detect_opencv_mat(byteImg, byteImg.Length, ref boxlist);
-                        allNum++;
                     }
                     if (n == -1)
                     {
@@ -425,7 +456,6 @@ namespace power_aoi
                     lock (BLock)
                     {
                         n = AiSdkBack.detect_opencv_mat(byteImg, byteImg.Length, ref boxlist);
-                        allNum++;
                     }
                     if (n == -1)
                     {
@@ -466,6 +496,7 @@ namespace power_aoi
                 }
                 bmp.Dispose();
 
+                allNum++;
                 aiDone(oneStitchSidePcb);
                 //最总检测的结果还是放在这里发送吧
 
@@ -556,72 +587,6 @@ namespace power_aoi
             return 666;
         }
 
-    
-
-        /// <summary>
-        /// 正面拍摄结束监听
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PlcFrontCaptureStatusTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            int addressA = 1133;
-            ////检测拍完信号
-            byte[] receiveData = new byte[255];
-            int num = Plc.ReadData(addressA, 2, receiveData);
-            double resVal = receiveData[11] * Math.Pow(256, 3) + receiveData[12] * Math.Pow(256, 2) + receiveData[9] * Math.Pow(256, 1) + receiveData[10];
-            if (Utils.DoubleEquals(resVal, 1.00)) //拍摄完成
-            {
-                plcFrontCaptureStatusTimer.Stop();
-                LogHelper.WriteLog("正面拍摄完成,发送出板信息");
-                Plc.APcbOut();
-                frontWorkingForm.BeginInvoke((Action)(() =>
-                {
-                    frontWorkingForm.imgBoxWorking.Text += "拍摄完成 已发送出板信息";
-                    frontWorkingForm.imgBoxWorking.SelectionRegion = new RectangleF();
-                }));
-            }
-            //Console.WriteLine("Front end Listening");
-        }
-
-        /// <summary>
-        /// 反面拍摄结束监听
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PlcBackCaptureStatusTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            int addressB = 1135;
-            byte[] receiveData = new byte[255];
-            int num = Plc.ReadData(addressB, 2, receiveData);
-            double resVal = receiveData[11] * Math.Pow(256, 3) + receiveData[12] * Math.Pow(256, 2) + receiveData[9] * Math.Pow(256, 1) + receiveData[10];
-            if (Utils.DoubleEquals(resVal, 1.00)) //拍摄完成
-            {
-                plcBackCaptureStatusTimer.Stop();
-                LogHelper.WriteLog("反面拍摄完成,发送出板信息");
-                Plc.BPcbOut();
-                backWorkingForm.BeginInvoke((Action)(() =>
-                {
-                    backWorkingForm.imgBoxWorking.Text += "拍摄完成 已发送出板信息";
-                    backWorkingForm.imgBoxWorking.SelectionRegion = new RectangleF();
-                }));
-            }
-            //Console.WriteLine("Back end Listening");
-        }
-
-        /// <summary>
-        /// 弃用
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void WorkDoneTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            //if (allNum >= )
-            //{
-
-            //}
-        }
-
         /// <summary>
         /// 监控板子到位信息
         /// </summary>
@@ -640,7 +605,11 @@ namespace power_aoi
                 }
                 else
                 {
-                    run(nowPcb.FrontPcb);
+                    MySmartThreadPool.Instance().QueueWorkItem((one) =>
+                    {
+                        run(one);
+                    }, nowPcb.FrontPcb);
+               
                 }
 
                 if (nowPcb.BackPcb == null)
@@ -649,7 +618,10 @@ namespace power_aoi
                 }
                 else
                 {
-                    run(nowPcb.BackPcb);
+                    MySmartThreadPool.Instance().QueueWorkItem((one) =>
+                    {
+                        run(one);
+                    }, nowPcb.BackPcb);
                 }
                 //开启拍完监控
                 //plcFrontCaptureStatusTimer.Start();
@@ -670,10 +642,6 @@ namespace power_aoi
             {
                 for (int i = 0; i < oneStitchSidePcb.x.Count; i++)
                 {
-                    if (i == oneStitchSidePcb.x.Count)
-                    {
-                        continue;
-                    }
                     if (i % 2 == 1)
                     {
                         int k = 0;
@@ -715,11 +683,11 @@ namespace power_aoi
                     }
 
                     Plc.WriteData(oneStitchSidePcb.addressX, oneStitchSidePcb.y.Count * 2, writeValueX, receiveData);
-                    Thread.Sleep(10);
+                    Thread.Sleep(50);
                     Plc.WriteData(oneStitchSidePcb.addressY, oneStitchSidePcb.y.Count * 2, writeValueY, receiveData);
-                    Thread.Sleep(10);
+                    Thread.Sleep(50);
                     Plc.WriteData(oneStitchSidePcb.addressCaptureNum, 2, Plc.DoubleToByte(oneStitchSidePcb.y.Count), receiveData); // 设置拍摄数量
-
+                    Thread.Sleep(50);
                     double value = 1.00;
                     byte[] newwriteValue = new byte[2];
                     newwriteValue[0] = (byte)(value / Math.Pow(256, 1));
@@ -728,18 +696,30 @@ namespace power_aoi
                     Plc.WriteData(oneStitchSidePcb.addressStartCapture, 1, newwriteValue, receiveData);
                     //需要等待拍摄完成后，继续发，而不是直接发
 
-                    while (true)
+                    bool isEnd = false;
+                    while (!isEnd)
                     {
                         ////检测拍完信号
                         byte[] newreceiveData = new byte[255]; //{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
                         int num = PLCController.Instance.ReadData(oneStitchSidePcb.addressEndCapture, 2, newreceiveData);
                         double newvalue = newreceiveData[11] * Math.Pow(256, 3) + newreceiveData[12] * Math.Pow(256, 2) + newreceiveData[9] * Math.Pow(256, 1) + newreceiveData[10];
-                        if (Utils.DoubleEquals(newvalue, 1.00)) //拍摄完成
+                        if (Utils.DoubleEquals(newvalue, 0.00)) //拍摄完成
                         {
-                            break;
+                            while (!isEnd)
+                            {
+                                ////检测拍完信号
+                                newreceiveData = new byte[255]; //{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
+                                num = PLCController.Instance.ReadData(oneStitchSidePcb.addressEndCapture, 2, newreceiveData);
+                                newvalue = newreceiveData[11] * Math.Pow(256, 3) + newreceiveData[12] * Math.Pow(256, 2) + newreceiveData[9] * Math.Pow(256, 1) + newreceiveData[10];
+                                if (Utils.DoubleEquals(newvalue, 1.00)) //拍摄完成
+                                {
+                                    isEnd = true;
+                                    break;
+                                }
+                                Thread.Sleep(50);
+                                Console.WriteLine("持续检测单行拍摄是否完成");
+                            }
                         }
-                        Thread.Sleep(50);
-                        Console.WriteLine("持续检测单行拍摄是否完成");
                     }
                 }
             }
@@ -910,12 +890,12 @@ namespace power_aoi
         /* Handles the event related to an image having been taken and waiting for processing. A面拍照 */
         private void OnImageReadyEventCallback()
         {
-            if (InvokeRequired)
-            {
-                /* If called from a different thread, we must use the Invoke method to marshal the call to the proper thread. */
-                BeginInvoke(new ImageProvider.ImageReadyEventHandler(OnImageReadyEventCallback));
-                return;
-            }
+            //if (InvokeRequired)
+            //{
+            //    /* If called from a different thread, we must use the Invoke method to marshal the call to the proper thread. */
+            //    BeginInvoke(new ImageProvider.ImageReadyEventHandler(OnImageReadyEventCallback));
+            //    return;
+            //}
 
             try
             {
@@ -933,9 +913,10 @@ namespace power_aoi
                     /* Check if the image is compatible with the currently used bitmap. */
                     Bitmap m_bitmap = null;
                     string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
-                    nowPcb.FrontPcb.savePath = path;
+                    
                     if (!Directory.Exists(path))
                     {
+                        nowPcb.FrontPcb.savePath = path;
                         Directory.CreateDirectory(path);
                     }
                     if (BitmapFactory.IsCompatible(m_bitmap, image.Width, image.Height, image.Color))
@@ -977,12 +958,12 @@ namespace power_aoi
         /* Handles the event related to an image having been taken and waiting for processing. B面拍照 */
         private void OnImageReadyEventCallbackB()
         {
-            if (InvokeRequired)
-            {
-                /* If called from a different thread, we must use the Invoke method to marshal the call to the proper thread. */
-                BeginInvoke(new ImageProvider.ImageReadyEventHandler(OnImageReadyEventCallbackB));
-                return;
-            }
+            //if (InvokeRequired)
+            //{
+            //    /* If called from a different thread, we must use the Invoke method to marshal the call to the proper thread. */
+            //    BeginInvoke(new ImageProvider.ImageReadyEventHandler(OnImageReadyEventCallbackB));
+            //    return;
+            //}
 
             try
             {
@@ -993,9 +974,10 @@ namespace power_aoi
                 if (image != null)
                 {
                     string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
-                    nowPcb.BackPcb.savePath = path;
+              
                     if (!Directory.Exists(path))
                     {
+                        nowPcb.BackPcb.savePath = path;
                         Directory.CreateDirectory(path);
                     }
                     Bitmap m_bitmap = null;
@@ -1170,7 +1152,7 @@ namespace power_aoi
                             //jsonData.data = nowPcb;
                             //RabbitMQClientHandler.GetInstance(onRabbitmqMessageCallback, onRabbitmqConnectCallback)
                             //.TopicExchangePublishMessageToServerAndWaitConfirm("", "work", "work", JsonConvert.SerializeObject(jsonData));
-                            string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
+                            string path = Path.Combine(Path.Combine(nowPcb.BackPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
 
                             //if (!Directory.Exists(path))
                             //{
@@ -1386,11 +1368,13 @@ namespace power_aoi
 
         private void CloseApplication()
         {
-            //先关闭相机
             try
             {
                 Plc.PcbOut();
+                #region 先关闭相机
                 this.Stop();
+                CloseTheImageProvider();
+                #endregion
                 AiSdkFront.dispose();
                 AiSdkBack.dispose();
                 frontWorkingForm.imgBoxWorking.Dispose();
