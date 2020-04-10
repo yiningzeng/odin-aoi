@@ -91,6 +91,7 @@ namespace power_aoi.PopupForm
                     addressY = 3200,
                     addressCaptureNum = 5000,
                     addressStartCapture = 2144,
+                    addressEndCapture = 1133,
                     addressOneSidePcbOut = 2145,
 
                     x = Xycoordinate.axcoordinate((int)Math.Ceiling((float)xvalue / Plc.capturePointIntervalXInMM), (int)(Plc.capturePointIntervalXInMM), xdifferencevalue),
@@ -108,6 +109,7 @@ namespace power_aoi.PopupForm
                     addressY = 3600,
                     addressCaptureNum = 5002,
                     addressStartCapture = 2146,
+                    addressEndCapture = 1135,
                     addressOneSidePcbOut = 2147,
 
                     x = Xycoordinate.bxcoordinate((int)Math.Ceiling((float)xvalue / Plc.capturePointIntervalXInMM), (int)(Plc.capturePointIntervalXInMM), xdifferencevalue),
