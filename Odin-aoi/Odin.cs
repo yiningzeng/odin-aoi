@@ -182,6 +182,10 @@ namespace power_aoi
                 {
                     try
                     {
+                        #region 松开
+                        Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5) + 1.4 * 1562.5);
+                        #endregion
+
                         MySmartThreadPool.InstanceSmall().WaitForIdle();
                         MySmartThreadPool.Instance().WaitForIdle();
                         Console.WriteLine("InstanceSmall: " + MySmartThreadPool.InstanceSmall().InUseThreads);
@@ -573,6 +577,10 @@ namespace power_aoi
         {
             if (Plc.CheckPcbReady() && isIdle) //只有在板子到位了并且空闲的时候进行
             {
+                #region 加紧
+                Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5));
+                #endregion
+
                 frontWorkingForm.BeginInvoke((Action)(() =>
                 {
                     frontWorkingForm.Ini();
@@ -1109,8 +1117,8 @@ namespace power_aoi
                         sw.Restart();
                         nowPcb = startWork.Tag as Pcb;
 
-                        #region 设置一下轨道宽度
-                        Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5));
+                        #region 加紧
+                        Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5) - 1.4 * 1562.5);
                         #endregion
 
                         MySmartThreadPool.Instance().QueueWorkItem((p, frontForm, backForm) =>
