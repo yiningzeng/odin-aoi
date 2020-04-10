@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace power_aoi.Properties {
+namespace Odin_aoi.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

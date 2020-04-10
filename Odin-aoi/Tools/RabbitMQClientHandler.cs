@@ -384,11 +384,11 @@ namespace power_aoi.Tools
                 string RoutingKey = routingKey;
 
                 //声明交换机
-                SendChannel.ExchangeDeclare(ExchangeName, ExchangeType.Topic);
+                if(exchangeName!="") SendChannel.ExchangeDeclare(ExchangeName, ExchangeType.Topic);
                 //声明队列
                 SendChannel.QueueDeclare(QueueName, queueDurable, false, false, null);
                 //路由绑定队列
-                SendChannel.QueueBind(QueueName, ExchangeName, RoutingKey, null);
+                if (exchangeName != "") SendChannel.QueueBind(QueueName, ExchangeName, RoutingKey, null);
 
                 //设置消息持久性
                 IBasicProperties props = SendChannel.CreateBasicProperties();

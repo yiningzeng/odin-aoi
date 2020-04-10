@@ -8,8 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0446C532-4215-4201-BADD-DE503A57CF14}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>power_aoi</RootNamespace>
-    <AssemblyName>power-aoi</AssemblyName>
+    <RootNamespace>Odin_aoi</RootNamespace>
+    <AssemblyName>Odin-aoi</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -166,9 +166,8 @@
       <HintPath>..\packages\OpenTK.GLControl.1.1.2225.0\lib\net20\OpenTK.GLControl.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework" />
-    <Reference Include="PylonC.NET, Version=4.2.0.0, Culture=neutral, PublicKeyToken=a77e8471c5919d5a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\Basler\pylon 5\Development\Assemblies\PylonC.Net\PylonC.NET.dll</HintPath>
+    <Reference Include="PylonC.NET">
+      <HintPath>E:\pcbaoi\bin\Debug\PylonC.NET.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client, Version=5.0.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
       <HintPath>..\packages\RabbitMQ.Client.5.1.2\lib\net451\RabbitMQ.Client.dll</HintPath>
@@ -250,6 +249,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DockerPanelOdin\BackWorkingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DockerPanelOdin\BackWorkingForm.Designer.cs">
+      <DependentUpon>BackWorkingForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="DockerPanelOdin\SourceForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -262,11 +267,11 @@
     <Compile Include="DockerPanelOdin\ToolBarForm.Designer.cs">
       <DependentUpon>ToolBarForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DockerPanelOdin\WorkingFrom.cs">
+    <Compile Include="DockerPanelOdin\FrontWorkingForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DockerPanelOdin\WorkingFrom.Designer.cs">
-      <DependentUpon>WorkingFrom.cs</DependentUpon>
+    <Compile Include="DockerPanelOdin\FrontWorkingForm.Designer.cs">
+      <DependentUpon>FrontWorkingForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Enums\HardwareEnum.cs" />
     <Compile Include="Login.cs">
@@ -277,6 +282,7 @@
     </Compile>
     <Compile Include="Model\AoiModel.cs" />
     <Compile Include="Model\JsonData.cs" />
+    <Compile Include="Model\OneStitchSidePcb.cs" />
     <Compile Include="Model\PcbName.cs" />
     <Compile Include="Model\Pcb.cs" />
     <Compile Include="Model\Marker.cs" />
@@ -289,9 +295,34 @@
     <Compile Include="Odin.Designer.cs">
       <DependentUpon>Odin.cs</DependentUpon>
     </Compile>
+    <Compile Include="PopupForm\PlcMessagePopupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PopupForm\PlcMessagePopupForm.Designer.cs">
+      <DependentUpon>PlcMessagePopupForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PopupForm\MessagePopupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PopupForm\MessagePopupForm.Designer.cs">
+      <DependentUpon>MessagePopupForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PopupForm\StartWork.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PopupForm\StartWork.Designer.cs">
+      <DependentUpon>StartWork.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PopupForm\BasePopupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PopupForm\BasePopupForm.Designer.cs">
+      <DependentUpon>BasePopupForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="SqlPars\QueryPars.cs" />
     <Compile Include="SqlPars\SqlQueryData2NG.cs" />
     <Compile Include="SqlPars\SqlQueryData1.cs" />
+    <Compile Include="Tools\AISDK.cs" />
     <Compile Include="Tools\Aoi.cs" />
     <Compile Include="Tools\CameraUtils\BitmapFactory.cs" />
     <Compile Include="Tools\CameraUtils\DeviceEnumerator.cs" />
@@ -302,10 +333,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Tools\Hardware\class_Broad.cs" />
+    <Compile Include="Tools\Hardware\Plc.cs" />
     <Compile Include="Tools\Hardware\PLCController.cs" />
     <Compile Include="Tools\Hardware\SingleTon.cs" />
     <Compile Include="Tools\Hardware\Xycoordinate.cs" />
     <Compile Include="Tools\INIHelper.cs" />
+    <Compile Include="Tools\LimitPropsContractResolver.cs" />
     <Compile Include="Tools\LogHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -332,20 +365,35 @@
     <Compile Include="UserControls\PropertyGrid.cs">
       <SubType>Component</SubType>
     </Compile>
+    <EmbeddedResource Include="DockerPanelOdin\BackWorkingForm.resx">
+      <DependentUpon>BackWorkingForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DockerPanelOdin\SourceForm.resx">
       <DependentUpon>SourceForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DockerPanelOdin\ToolBarForm.resx">
       <DependentUpon>ToolBarForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DockerPanelOdin\WorkingFrom.resx">
-      <DependentUpon>WorkingFrom.cs</DependentUpon>
+    <EmbeddedResource Include="DockerPanelOdin\FrontWorkingForm.resx">
+      <DependentUpon>FrontWorkingForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Login.resx">
       <DependentUpon>Login.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Odin.resx">
       <DependentUpon>Odin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PopupForm\PlcMessagePopupForm.resx">
+      <DependentUpon>PlcMessagePopupForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PopupForm\MessagePopupForm.resx">
+      <DependentUpon>MessagePopupForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PopupForm\StartWork.resx">
+      <DependentUpon>StartWork.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PopupForm\BasePopupForm.resx">
+      <DependentUpon>BasePopupForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -385,11 +433,17 @@
   <ItemGroup>
     <Content Include="aa.ico" />
     <Content Include="Images\camera-fill.png" />
+    <None Include="Images\user center.png" />
+    <None Include="Images\password.png" />
+    <None Include="Images\gift.png" />
+    <None Include="Images\close-no-square.png" />
+    <None Include="Images\square.png" />
+    <None Include="Images\min.png" />
+    <None Include="logo.png" />
+    <None Include="Images\close.png" />
     <None Include="Images\editor.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Tools\NewFolder1\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

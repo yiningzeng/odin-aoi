@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using PylonC.NET;
 using System.Threading;
 
-namespace pcbaoi.Tools
+namespace Tools
 {
     /* Provides methods for listing all available devices. */
     public static class DeviceEnumerator

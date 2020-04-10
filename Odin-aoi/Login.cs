@@ -8,6 +8,7 @@ using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,8 +21,11 @@ namespace power_aoi
         public Login()
         {
             InitializeComponent();
+            this.MouseDown += Move_MouseDown;
+            pTitle.MouseDown += Move_MouseDown;
+            #region e
             //Mat img = new Mat(@"C:\Users\Administrator\Desktop\suomi-test-img\762-Ng\F0.jpg", Emgu.CV.CvEnum.LoadImageType.AnyColor);
-            this.Icon = Properties.Resources.aa;
+            //this.Icon = Properties.Resources.aa;
             //MySmartThreadPool.Instance().QueueWorkItem((str, lim) => {
             //    try
             //    {
@@ -50,7 +54,22 @@ namespace power_aoi
             //INIHelper.Write("AIConfig", "yashang", "0.05", Application.StartupPath + "/config.ini");
             //INIHelper.Write("AIConfig", "yiwu", "0.05", Application.StartupPath + "/config.ini");
             //INIHelper.Write("AIConfig", "zhanxi", "0.05", Application.StartupPath + "/config.ini");
+            #endregion
         }
+
+        private void Move_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                ReleaseCapture();
+                SendMessage(Handle, 0xA1, 0x02, 0);
+            }
+        }
+
+        [DllImport("user32.dll")]
+        public static extern bool ReleaseCapture();
+        [DllImport("user32.dll")]
+        public static extern bool SendMessage(IntPtr hwnd, int wMsg, int wParam, int lParam);
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
@@ -58,8 +77,8 @@ namespace power_aoi
             switch (keyData)
             {
                 case Keys.Enter:
-                    btnLoginRepair.Focus();
-                    btnLoginRepair.PerformClick();
+                    btnLogin.Focus();
+                    btnLogin.PerformClick();
                     return true;
                 //......
                 default:
@@ -90,17 +109,23 @@ namespace power_aoi
                             lbResult.Text = "用户名或密码错误";
                             lbResult.Visible = true;
                         }));
-
                     }
                 }
                 catch (Exception err)
                 {
-                    this.BeginInvoke((Action)(() =>
+                    try
                     {
-                        lbResult.Text = "连接数据库出错";
-                        lbResult.Visible = true;
-                    }));
-                    LogHelper.WriteLog("Login error", err);
+                        this.BeginInvoke((Action)(() =>
+                        {
+                            lbResult.Text = "连接数据库出错";
+                            lbResult.Visible = true;
+                        }));
+                        //LogHelper.WriteLog("Login error", err);
+                    }
+                    catch(Exception er)
+                    {
+                        //LogHelper.WriteLog("Login error", err);
+                    }
                 }
                 finally
                 {
@@ -108,6 +133,11 @@ namespace power_aoi
                 }
             }, tbUsername.Text.Trim(), tbPassword.Text.Trim());
             
+        }
+
+        private void pbClose_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

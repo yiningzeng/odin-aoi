@@ -31,15 +31,20 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Odin));
             this.panelToolBar = new System.Windows.Forms.Panel();
+            this.imageListToolBar = new System.Windows.Forms.ImageList(this.components);
+            this.dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            this.vS2015DarkTheme1 = new WeifenLuo.WinFormsUI.Docking.VS2015DarkTheme();
+            this.visualStudioToolStripExtender1 = new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender(this.components);
+            this.menuStripControl = new power_aoi.UserControls.CustomMenuStripControl();
+            this.tsmLogo = new System.Windows.Forms.ToolStripMenuItem();
             this.设置ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.初始化窗体布局ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.保存窗体布局ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.customMenuStripControl1 = new power_aoi.UserControls.CustomMenuStripControl();
-            this.imageListToolBar = new System.Windows.Forms.ImageList(this.components);
-            this.dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
-            this.visualStudioToolStripExtender1 = new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender(this.components);
-            this.vS2015DarkTheme1 = new WeifenLuo.WinFormsUI.Docking.VS2015DarkTheme();
-            this.customMenuStripControl1.SuspendLayout();
+            this.tsmClose = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmSquare = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmMin = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.menuStripControl.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelToolBar
@@ -48,8 +53,59 @@
             this.panelToolBar.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelToolBar.Location = new System.Drawing.Point(0, 25);
             this.panelToolBar.Name = "panelToolBar";
-            this.panelToolBar.Size = new System.Drawing.Size(44, 555);
+            this.panelToolBar.Size = new System.Drawing.Size(44, 747);
             this.panelToolBar.TabIndex = 8;
+            // 
+            // imageListToolBar
+            // 
+            this.imageListToolBar.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListToolBar.ImageStream")));
+            this.imageListToolBar.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageListToolBar.Images.SetKeyName(0, "采集");
+            this.imageListToolBar.Images.SetKeyName(1, "编程");
+            this.imageListToolBar.Images.SetKeyName(2, "手动出板");
+            this.imageListToolBar.Images.SetKeyName(3, "开发测试按钮");
+            // 
+            // dockPanel1
+            // 
+            this.dockPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.dockPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dockPanel1.DockBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.dockPanel1.Location = new System.Drawing.Point(44, 25);
+            this.dockPanel1.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.dockPanel1.Name = "dockPanel1";
+            this.dockPanel1.Padding = new System.Windows.Forms.Padding(6);
+            this.dockPanel1.ShowAutoHideContentOnHover = false;
+            this.dockPanel1.Size = new System.Drawing.Size(1457, 747);
+            this.dockPanel1.TabIndex = 10;
+            this.dockPanel1.Theme = this.vS2015DarkTheme1;
+            // 
+            // visualStudioToolStripExtender1
+            // 
+            this.visualStudioToolStripExtender1.DefaultRenderer = null;
+            // 
+            // menuStripControl
+            // 
+            this.menuStripControl.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.menuStripControl.EndColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.menuStripControl.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmLogo,
+            this.设置ToolStripMenuItem1,
+            this.tsmClose,
+            this.tsmSquare,
+            this.tsmMin});
+            this.menuStripControl.Location = new System.Drawing.Point(0, 0);
+            this.menuStripControl.Name = "menuStripControl";
+            this.menuStripControl.Size = new System.Drawing.Size(1501, 25);
+            this.menuStripControl.StartColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.menuStripControl.TabIndex = 6;
+            this.menuStripControl.Text = " ";
+            // 
+            // tsmLogo
+            // 
+            this.tsmLogo.Image = global::Odin_aoi.Properties.Resources.logo;
+            this.tsmLogo.Name = "tsmLogo";
+            this.tsmLogo.Size = new System.Drawing.Size(40, 21);
+            this.tsmLogo.Text = " ";
             // 
             // 设置ToolStripMenuItem1
             // 
@@ -67,7 +123,7 @@
             this.初始化窗体布局ToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
             this.初始化窗体布局ToolStripMenuItem.ForeColor = System.Drawing.Color.White;
             this.初始化窗体布局ToolStripMenuItem.Name = "初始化窗体布局ToolStripMenuItem";
-            this.初始化窗体布局ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.初始化窗体布局ToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.初始化窗体布局ToolStripMenuItem.Text = "初始化窗体布局";
             this.初始化窗体布局ToolStripMenuItem.Click += new System.EventHandler(this.初始化窗体布局ToolStripMenuItem_Click);
             // 
@@ -76,63 +132,48 @@
             this.保存窗体布局ToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
             this.保存窗体布局ToolStripMenuItem.ForeColor = System.Drawing.Color.White;
             this.保存窗体布局ToolStripMenuItem.Name = "保存窗体布局ToolStripMenuItem";
-            this.保存窗体布局ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.保存窗体布局ToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.保存窗体布局ToolStripMenuItem.Text = "保存窗体布局";
             this.保存窗体布局ToolStripMenuItem.Click += new System.EventHandler(this.保存窗体布局ToolStripMenuItem_Click);
             // 
-            // customMenuStripControl1
+            // tsmClose
             // 
-            this.customMenuStripControl1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.customMenuStripControl1.EndColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.customMenuStripControl1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.设置ToolStripMenuItem1});
-            this.customMenuStripControl1.Location = new System.Drawing.Point(0, 0);
-            this.customMenuStripControl1.Name = "customMenuStripControl1";
-            this.customMenuStripControl1.Size = new System.Drawing.Size(880, 25);
-            this.customMenuStripControl1.StartColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.customMenuStripControl1.TabIndex = 6;
-            this.customMenuStripControl1.Text = "customMenuStripControl1";
+            this.tsmClose.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsmClose.Image = global::Odin_aoi.Properties.Resources.close_no_square;
+            this.tsmClose.Name = "tsmClose";
+            this.tsmClose.Size = new System.Drawing.Size(28, 21);
             // 
-            // imageListToolBar
+            // tsmSquare
             // 
-            this.imageListToolBar.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListToolBar.ImageStream")));
-            this.imageListToolBar.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageListToolBar.Images.SetKeyName(0, "camera.png");
-            this.imageListToolBar.Images.SetKeyName(1, "editor.png");
+            this.tsmSquare.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsmSquare.Image = global::Odin_aoi.Properties.Resources.square;
+            this.tsmSquare.Name = "tsmSquare";
+            this.tsmSquare.Size = new System.Drawing.Size(28, 21);
             // 
-            // dockPanel1
+            // tsmMin
             // 
-            this.dockPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.dockPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dockPanel1.DockBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.dockPanel1.Location = new System.Drawing.Point(44, 25);
-            this.dockPanel1.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
-            this.dockPanel1.Name = "dockPanel1";
-            this.dockPanel1.Padding = new System.Windows.Forms.Padding(6);
-            this.dockPanel1.ShowAutoHideContentOnHover = false;
-            this.dockPanel1.Size = new System.Drawing.Size(836, 555);
-            this.dockPanel1.TabIndex = 10;
-            this.dockPanel1.Theme = this.vS2015DarkTheme1;
-            // 
-            // visualStudioToolStripExtender1
-            // 
-            this.visualStudioToolStripExtender1.DefaultRenderer = null;
+            this.tsmMin.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsmMin.Image = global::Odin_aoi.Properties.Resources.min;
+            this.tsmMin.Name = "tsmMin";
+            this.tsmMin.Size = new System.Drawing.Size(28, 21);
             // 
             // Odin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(880, 580);
+            this.ClientSize = new System.Drawing.Size(1501, 772);
             this.Controls.Add(this.dockPanel1);
             this.Controls.Add(this.panelToolBar);
-            this.Controls.Add(this.customMenuStripControl1);
+            this.Controls.Add(this.menuStripControl);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.IsMdiContainer = true;
             this.Name = "Odin";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Odin";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.Odin_Load);
-            this.customMenuStripControl1.ResumeLayout(false);
-            this.customMenuStripControl1.PerformLayout();
+            this.menuStripControl.ResumeLayout(false);
+            this.menuStripControl.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -144,10 +185,15 @@
         public System.Windows.Forms.ToolStripMenuItem 设置ToolStripMenuItem1;
         public System.Windows.Forms.ToolStripMenuItem 初始化窗体布局ToolStripMenuItem;
         public System.Windows.Forms.ToolStripMenuItem 保存窗体布局ToolStripMenuItem;
-        public UserControls.CustomMenuStripControl customMenuStripControl1;
+        public UserControls.CustomMenuStripControl menuStripControl;
         public System.Windows.Forms.ImageList imageListToolBar;
         public WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel1;
         public WeifenLuo.WinFormsUI.Docking.VS2015DarkTheme vS2015DarkTheme1;
         public WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender visualStudioToolStripExtender1;
+        private System.Windows.Forms.ToolStripMenuItem tsmLogo;
+        private System.Windows.Forms.ToolStripMenuItem tsmClose;
+        private System.Windows.Forms.ToolStripMenuItem tsmSquare;
+        private System.Windows.Forms.ToolStripMenuItem tsmMin;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

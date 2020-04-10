@@ -1,11 +1,16 @@
 ﻿using Emgu.CV;
 using Emgu.CV.Structure;
+using power_aoi.DockerPanelOdin;
+using power_aoi.Model;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace power_aoi.Tools
 {
@@ -32,55 +37,146 @@ namespace power_aoi.Tools
         public static extern int copy_to(IntPtr iplImage, IntPtr patch, Rectangle rectangle);
 
         /// <summary>
-        /// 拼图
+        /// 拼图主函数
         /// </summary>
-        /// <param name="dst">原始图片</param>
-        /// <param name="bitmap">小图，照片拍的图</param>
-        /// <param name="n_rows">总的行数</param>
-        /// <param name="n_cols">总的列数</param>
-        /// <param name="row">当前行</param>
-        /// <param name="col">当前列</param>
-        public static void ImageStitch(ref Mat dst, Bitmap bitmap, ref Rectangle roi0, ref Rectangle roi, int n_rows, int n_cols, bool isFirstRow, bool isFirstCol)
+        /// <param name="oneSidePcb"></param>
+        public static void StitchMain(OneStitchSidePcb oneSidePcb, Odin.StitchCallBack stitchCallBack)
         {
+            bool needSave = false;
+            double or_hl = oneSidePcb.or_hl;
+            double or_hu = oneSidePcb.or_hu;
+            double or_vl = oneSidePcb.or_vl;
+            double or_vu = oneSidePcb.or_vu;
+            double dr_hu = oneSidePcb.dr_hu;
+            double dr_vu = oneSidePcb.dr_vu;
+
+            Bitmap bitmap = oneSidePcb.bitmaps.Dequeue();
             Emgu.CV.Image<Bgr, Byte> currentFrame = new Emgu.CV.Image<Bgr, Byte>(bitmap);
-            Mat img = new Mat();
-            CvInvoke.BitwiseAnd(currentFrame, currentFrame, img);
-            double or_hl = 0.23; // lower bound for horizontal overlap ratio
-            double or_hu = 0.24; // upper
-            double or_vl = 0.065; // vertical
-            double or_vu = 0.08;
-            double dr_hu = 0.01; // upper bound for horizontal drift ratio
-            double dr_vu = 0.01; //
-
-
-            if (isFirstRow)
+            Mat imgOld = new Mat();
+            CvInvoke.BitwiseAnd(currentFrame, currentFrame, imgOld);
+            int edge = 3;
+            Mat img = new Mat(imgOld, new Rectangle(new Point(edge, edge), new Size(imgOld.Width - edge * 2, imgOld.Height - edge * 2)));
+           
+            //第一行
+            if (oneSidePcb.currentRow == 0)
             {
-                if (isFirstCol)
+                if (oneSidePcb.currentCol == 0)
                 {
-                    roi0 = new Rectangle(Convert.ToInt32(img.Cols * (n_cols - 1) * dr_hu), Convert.ToInt32(img.Rows * (n_rows - 1) * dr_vu), img.Cols, img.Rows);
-                    dst = new Mat(Convert.ToInt32(img.Rows * (n_rows + (n_rows - 1) * (dr_vu * 2 - or_vl))), Convert.ToInt32(img.Cols * (n_cols + (n_cols - 1) * (dr_hu * 2 - or_hl))), img.Depth, 3); // 第一张图不要0,0 最好留一些像素
-                    roi = roi0;
+                    #region 判断s型还是z字形
+                    if (oneSidePcb.zTrajectory) //Z形
+                    {
+                        oneSidePcb.trajectorySide = (int)side.left;
+                        int x = Convert.ToInt32(img.Cols * (oneSidePcb.allCols - 1) * dr_hu);
+                        int y = Convert.ToInt32(img.Rows * (oneSidePcb.allRows - 1) * dr_vu);
+                        int dstRows = Convert.ToInt32(img.Rows * (oneSidePcb.allRows + (oneSidePcb.allRows - 1) * (dr_vu * 2 - or_vl)));
+                        int dstCols = Convert.ToInt32(img.Cols * (oneSidePcb.allCols + (oneSidePcb.allCols - 1) * (dr_hu * 2 - or_hl)));
+                        oneSidePcb.roi = new Rectangle(x, y, img.Cols, img.Rows);
+                        oneSidePcb.dst = new Mat(dstRows, dstCols, img.Depth, 3); // 第一张图不要0,0 最好留一些像素
+                    }
+                    else // S型
+                    {
+                        oneSidePcb.trajectorySide = (int)side.right;
+
+                        int dstRows = Convert.ToInt32(img.Rows * (oneSidePcb.allRows + (oneSidePcb.allRows - 1) * (dr_vu * 2 - or_vl)));
+                        int dstCols = Convert.ToInt32(img.Cols * (oneSidePcb.allCols + (oneSidePcb.allCols - 1) * (dr_hu * 2 - or_hl)));
+                        int x = Convert.ToInt32((dstCols - img.Cols) * (1 - dr_hu));
+                        int y = Convert.ToInt32(img.Rows * (oneSidePcb.allRows - 1) * dr_vu);
+                        oneSidePcb.roi = new Rectangle(x, y, img.Cols, img.Rows);
+                        oneSidePcb.dst = new Mat(dstRows, dstCols, img.Depth, 3); // 第一张图不要0,0 最好留一些像素
+                    }
+                    #endregion
                 }
                 else
                 {
-                    stitchv2(dst.Ptr, roi, img.Ptr, ref roi, (int)side.left, Convert.ToInt32(img.Cols * or_hl), Convert.ToInt32(img.Cols * or_hu), Convert.ToInt32(img.Rows * dr_vu));
+                    stitchv2(oneSidePcb.dst.Ptr, oneSidePcb.roi, img.Ptr, ref oneSidePcb.roi, oneSidePcb.trajectorySide, Convert.ToInt32(img.Cols * or_hl), Convert.ToInt32(img.Cols * or_hu), Convert.ToInt32(img.Rows * dr_vu));
                 }
-                copy_to(dst.Ptr, img.Ptr, roi);
-            }
-            else
-            {
-                if (isFirstCol)
+                //oneSidePcb.dst.Save(@"C:\Users\Administrator\Desktop\suomi-test-img\" + oneSidePcb.currentRow + "-" + oneSidePcb.currentCol + ".jpg");
+                copy_to(oneSidePcb.dst.Ptr, img.Ptr, oneSidePcb.roi);
+         
+                //oneSidePcb.dst.Save(@"C:\Users\Administrator\Desktop\suomi-test-img\" + oneSidePcb.currentRow + "-" + oneSidePcb.currentCol + ".jpg");
+                
+                oneSidePcb.currentCol++;
+                if (oneSidePcb.currentCol >= oneSidePcb.allCols)
                 {
-                    stitchv2(dst.Ptr, roi0, img.Ptr, ref roi0, (int)side.up, Convert.ToInt32(img.Cols * or_vl), Convert.ToInt32(img.Cols * or_vu), Convert.ToInt32(img.Rows * dr_hu));
-                    roi = roi0;
+                    oneSidePcb.currentCol = 0;
+                    oneSidePcb.currentRow++;
+                    if (oneSidePcb.trajectorySide == (int)side.left)
+                    {
+                        oneSidePcb.trajectorySide = (int)side.right;
+                    }
+                    else if (oneSidePcb.trajectorySide == (int)side.right)
+                    {
+                        oneSidePcb.trajectorySide = (int)side.left;
+                    }
+                }
+                //oneSidePcb.dst.Save(@"C:\Users\Administrator\Desktop\suomi-test-img\row1.jpg");
+            }
+            else // 其他行
+            {
+                if (Convert.ToBoolean(oneSidePcb.currentRow % 2)) //偶行
+                {
+                    if (oneSidePcb.currentCol == 0)
+                    {
+                        stitchv2(oneSidePcb.dst.Ptr, oneSidePcb.roi, img.Ptr, ref oneSidePcb.roi, (int)side.up, Convert.ToInt32(img.Cols * or_vl), Convert.ToInt32(img.Cols * or_vu), Convert.ToInt32(img.Rows * dr_hu));
+                        //oneSidePcb.roi = oneSidePcb.roi0;
+                    }
+                    else
+                    {
+                        stitchv2(oneSidePcb.dst.Ptr, oneSidePcb.roi, img.Ptr, ref oneSidePcb.roi, oneSidePcb.trajectorySide, Convert.ToInt32(img.Cols * or_hl), Convert.ToInt32(img.Cols * or_hu), Convert.ToInt32(img.Rows * dr_vu), (int)side.up, Convert.ToInt32(img.Rows * or_vl), Convert.ToInt32(img.Rows * or_vu), Convert.ToInt32(img.Cols * dr_hu));
+                    }
                 }
                 else
                 {
-                    stitchv2(dst.Ptr, roi, img.Ptr, ref roi, (int)side.left, Convert.ToInt32(img.Cols * or_hl), Convert.ToInt32(img.Cols * or_hu), Convert.ToInt32(img.Rows * dr_vu), (int)side.up, Convert.ToInt32(img.Rows * or_vl), Convert.ToInt32(img.Rows * or_vu), Convert.ToInt32(img.Cols * dr_hu));
+                    if (oneSidePcb.currentCol == 0)
+                    {
+                        stitchv2(oneSidePcb.dst.Ptr, oneSidePcb.roi, img.Ptr, ref oneSidePcb.roi, (int)side.up, Convert.ToInt32(img.Cols * or_vl), Convert.ToInt32(img.Cols * or_vu), Convert.ToInt32(img.Rows * dr_hu));
+                        //oneSidePcb.roi = oneSidePcb.roi0;
+                    }
+                    else
+                    {
+                        stitchv2(oneSidePcb.dst.Ptr, oneSidePcb.roi, img.Ptr, ref oneSidePcb.roi, oneSidePcb.trajectorySide, Convert.ToInt32(img.Cols * or_hl), Convert.ToInt32(img.Cols * or_hu), Convert.ToInt32(img.Rows * dr_vu), (int)side.up, Convert.ToInt32(img.Rows * or_vl), Convert.ToInt32(img.Rows * or_vu), Convert.ToInt32(img.Cols * dr_hu));
+                    }
                 }
-                copy_to(dst.Ptr, img.Ptr, roi);
+                //oneSidePcb.dst.Save(@"C:\Users\Administrator\Desktop\suomi-test-img\" + oneSidePcb.currentRow + "-" + oneSidePcb.currentCol + ".jpg");
+                copy_to(oneSidePcb.dst.Ptr, img.Ptr, oneSidePcb.roi);
+                //oneSidePcb.dst.Save(@"C:\Users\Administrator\Desktop\suomi-test-img\" + oneSidePcb.currentRow + "-" + oneSidePcb.currentCol + ".jpg");
+                oneSidePcb.currentCol++;
+                if (oneSidePcb.currentRow >= oneSidePcb.allRows - 1 && oneSidePcb.currentCol >= oneSidePcb.allCols)
+                {
+                    needSave = true;
+                }
+                else if (oneSidePcb.currentCol >= oneSidePcb.allCols)
+                {
+                    oneSidePcb.currentCol = 0;
+                    oneSidePcb.currentRow++;
+                    if (oneSidePcb.trajectorySide == (int)side.left) oneSidePcb.trajectorySide = (int)side.right;
+                    else if (oneSidePcb.trajectorySide == (int)side.right) oneSidePcb.trajectorySide = (int)side.left;
+                }
             }
-            dst.Save(@"C:\Users\Administrator\Desktop\suomi-test-img\dst"+ roi.X+ ".jpg");
+            #region 实时更新采集框
+
+            stitchCallBack(false, oneSidePcb, bitmap, new RectangleF((float)(oneSidePcb.roi.Location.X * 0.25),
+                    (float)(oneSidePcb.roi.Location.Y * 0.25),
+                    (float)(oneSidePcb.roi.Size.Width * 0.25),
+                    (float)(oneSidePcb.roi.Size.Height * 0.25)));
+            #endregion
+
+            #region 释放资源
+            img.Dispose();
+            currentFrame.Dispose();
+            //bitmap.Dispose();
+            #endregion
+
+            if (needSave) // 加这里主要是为了优化workingForm.imgBoxWorking最后一个框的显示问题
+            {
+                stitchCallBack(true, oneSidePcb, bitmap, new RectangleF());
+                Mat smallmat =new Mat();
+                CvInvoke.Resize(oneSidePcb.dst, smallmat, new Size(Convert.ToInt32(oneSidePcb.dst.Cols * oneSidePcb.scale), Convert.ToInt32(oneSidePcb.dst.Rows * oneSidePcb.scale)));
+                if (oneSidePcb.zTrajectory)
+                    smallmat.Save(Path.Combine(oneSidePcb.savePath, "Front.jpg"));
+                else
+                    smallmat.Save(Path.Combine(oneSidePcb.savePath, "Back.jpg"));
+            }
         }
     }
 }

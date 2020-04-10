@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using PylonC.NET;
 using System.Threading;
 
-namespace pcbaoi.Tools
+namespace Tools
 {
         /* The ImageProvider is responsible for opening and closing a device, it takes care of the grabbing and buffer handling,
      it notifies the user via events about state changes, and provides access to GenICam parameter nodes of the device.

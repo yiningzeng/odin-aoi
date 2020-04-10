@@ -18,6 +18,41 @@ namespace power_aoi
 {
     public class Utils
     {
+
+        /// <summary>
+        /// double比较大小
+        /// </summary>
+        /// <param name="value1"></param>
+        /// <param name="value2"></param>
+        /// <returns></returns>
+        public static bool DoubleEquals(double value1, double value2)
+        {
+            //双精度误差
+            var DOUBLE_DELTA = 1E-6;
+            return value1 == value2 || Math.Abs(value1 - value2) < DOUBLE_DELTA;
+        }
+
+        //bitmap转byte
+        public static byte[] Bitmap2Byte(Bitmap bitmap)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                bitmap.Save(stream, ImageFormat.Jpeg);
+                byte[] data = new byte[stream.Length];
+                stream.Seek(0, SeekOrigin.Begin);
+                stream.Read(data, 0, Convert.ToInt32(stream.Length));
+                return data;
+            }
+        }
+        /// 将 Stream 转成 byte[]
+        public static byte[] StreamToBytes(MemoryStream stream)
+        {
+            byte[] bytes = new byte[stream.Length];
+            stream.Read(bytes, 0, bytes.Length);
+            // 设置当前流的位置为流的开始
+            stream.Seek(0, SeekOrigin.Begin);
+            return bytes;
+        }
         /// <summary>
         /// 处理Double值，精确到小数点后几位
         /// </summary>
