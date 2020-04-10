@@ -76,7 +76,7 @@
             // 
             this.pbClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pbClose.Image = global::Odin_aoi.Properties.Resources.close;
-            this.pbClose.Location = new System.Drawing.Point(409, 0);
+            this.pbClose.Location = new System.Drawing.Point(382, 0);
             this.pbClose.Name = "pbClose";
             this.pbClose.Size = new System.Drawing.Size(27, 27);
             this.pbClose.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
