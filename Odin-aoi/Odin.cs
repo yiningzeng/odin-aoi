@@ -242,6 +242,8 @@ namespace power_aoi
                         backCameraNum = 0;
                         allNum = 0;
 
+                        nowPcb.Id = new Snowflake(5).nextId().ToString();
+
                         nowPcb.BackPcb.currentRow = 0;
                         nowPcb.BackPcb.currentCol = 0;
                         nowPcb.BackPcb.currentRow = 0;
@@ -602,9 +604,9 @@ namespace power_aoi
                 else
                 {
                     string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
+                    nowPcb.FrontPcb.savePath = path;
                     if (!Directory.Exists(path))
                     {
-                        nowPcb.FrontPcb.savePath = path;
                         Directory.CreateDirectory(path);
                     }
                     MySmartThreadPool.Instance().QueueWorkItem((one) =>
@@ -620,9 +622,9 @@ namespace power_aoi
                 else
                 {
                     string path = Path.Combine(Path.Combine(nowPcb.BackPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
+                    nowPcb.BackPcb.savePath = path;
                     if (!Directory.Exists(path))
                     {
-                        nowPcb.BackPcb.savePath = path;
                         Directory.CreateDirectory(path);
                     }
                     MySmartThreadPool.Instance().QueueWorkItem((one) =>
