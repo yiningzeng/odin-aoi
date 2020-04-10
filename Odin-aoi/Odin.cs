@@ -455,7 +455,7 @@ namespace power_aoi
                                     score = bbox.prob,
                                     PcbId = nowPcb.Id,
                                     Area = "",
-                                    Region = bbox.x + "," + bbox.y + "," + bbox.w + "," + bbox.h,
+                                    Region = bbox.x * oneStitchSidePcb.scale + "," + bbox.y * oneStitchSidePcb.scale + "," + bbox.w * oneStitchSidePcb.scale + "," + bbox.h * oneStitchSidePcb.scale,
                                     NgType = AiSdkFront.names[(int)bbox.obj_id],
                                     PartImagePath = id + ".jpg",
                                     CreateTime = DateTime.Now
