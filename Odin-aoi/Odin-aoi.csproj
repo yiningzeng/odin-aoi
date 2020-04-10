@@ -295,6 +295,12 @@
     <Compile Include="Odin.Designer.cs">
       <DependentUpon>Odin.cs</DependentUpon>
     </Compile>
+    <Compile Include="PopupForm\PlcErrorePopupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PopupForm\PlcErrorePopupForm.Designer.cs">
+      <DependentUpon>PlcErrorePopupForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="PopupForm\PlcMessagePopupForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -383,6 +389,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Odin.resx">
       <DependentUpon>Odin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PopupForm\PlcErrorePopupForm.resx">
+      <DependentUpon>PlcErrorePopupForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PopupForm\PlcMessagePopupForm.resx">
       <DependentUpon>PlcMessagePopupForm.cs</DependentUpon>

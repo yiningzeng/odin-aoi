@@ -207,9 +207,6 @@ namespace power_aoi
                             }
                             Ftp.UpLoadFile(localPath + "/front.jpg", Ftp.ftpPath + nowPcb.Id + "/front.jpg");
                             Ftp.UpLoadFile(localPath + "/back.jpg", Ftp.ftpPath + nowPcb.Id + "/back.jpg");
-                        });
-                        MySmartThreadPool.Instance().QueueWorkItem(() =>
-                        {
                             try
                             {
                                 JsonData<Pcb> jsonData = new JsonData<Pcb>();
