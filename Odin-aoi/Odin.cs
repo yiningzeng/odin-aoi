@@ -35,8 +35,6 @@ namespace power_aoi
         Stopwatch sw = new Stopwatch();
         public delegate int StitchCallBack(bool isEnd, OneStitchSidePcb oneStitchSidePcb, Bitmap bitmap,  RectangleF scaleRect);
         public StitchCallBack onStitchCallBack;
-        //public delegate int StartAiDetect(bool isFront, Bitmap bitmap, RectangleF smallRect);
-        //public StartAiDetect onStartAiDetect;
 
         public delegate void RabbitmqMessageCallback(string message);
         public RabbitmqMessageCallback onRabbitmqMessageCallback;
@@ -50,15 +48,11 @@ namespace power_aoi
         BackWorkingForm backWorkingForm;
 
         public System.Timers.Timer plcCheckReadyTimer = new System.Timers.Timer(); // plc监听板子到位信息
-        public System.Timers.Timer plcFrontCaptureStatusTimer = new System.Timers.Timer(); // plc监听相机拍照完成
-        public System.Timers.Timer plcBackCaptureStatusTimer = new System.Timers.Timer(); // plc监听相机拍照完成
-        public System.Timers.Timer workDoneTimer = new System.Timers.Timer(); // 所有工作完成
-
 
         Pcb nowPcb;
-        int frontCameraNum = 0;
-        int backCameraNum = 0;
-        int allNum = 0;
+        int frontCameraNum = 0; // 用于记录正面的单个数量
+        int backCameraNum = 0; // 用于记录反面面的单个数量
+        int allNum = 0; 
         bool isIdle = true;
         private object ALock = new object();
         private object BLock = new object();
@@ -78,10 +72,6 @@ namespace power_aoi
             string configFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
             if (File.Exists(configFile))
                 dockPanel1.LoadFromXml(configFile, m_deserializeDockContent);
-            //toolBarForm.Show(this.dockPanel1, DockState.DockRight);
-            //workingFrom.Show(this.dockPanel1, DockState.Document);
-            //frontWorkingForm.Show(this.dockPanel1, DockState.DockTop);
-            //backWorkingForm.Show(this.dockPanel1, DockState.DockTop);
             Ini();
         }
 
@@ -98,12 +88,6 @@ namespace power_aoi
 
             plcCheckReadyTimer.Interval = 100;
             plcCheckReadyTimer.Elapsed += plcCheckReadyTimer_Elapsed;
-            plcFrontCaptureStatusTimer.Interval = 100;
-            plcFrontCaptureStatusTimer.Elapsed += PlcFrontCaptureStatusTimer_Elapsed;
-            plcBackCaptureStatusTimer.Interval = 100;
-            plcBackCaptureStatusTimer.Elapsed += PlcBackCaptureStatusTimer_Elapsed;
-            workDoneTimer.Interval = 100;
-            workDoneTimer.Elapsed += WorkDoneTimer_Elapsed;
 
             for (int i = 0; i < imageListToolBar.Images.Count; i++)
             {
@@ -192,7 +176,7 @@ namespace power_aoi
         public void aiDone(OneStitchSidePcb oneStitchSidePcb)
         {
             Console.WriteLine(allNum);
-            if (allNum == oneStitchSidePcb.AllNum)
+            if (allNum == oneStitchSidePcb.AllNum * 2) // 暂时这么写！
             {
                 this.BeginInvoke((Action)(() =>
                 {
@@ -242,6 +226,22 @@ namespace power_aoi
                         frontCameraNum = 0;
                         backCameraNum = 0;
                         allNum = 0;
+
+                        nowPcb.BackPcb.currentRow = 0;
+                        nowPcb.BackPcb.currentCol = 0;
+                        nowPcb.BackPcb.currentRow = 0;
+                        nowPcb.BackPcb.dst = null;
+                        nowPcb.BackPcb.roi = new Rectangle();
+                        nowPcb.BackPcb.stitchEnd = false;
+                        nowPcb.BackPcb.savePath = INIHelper.Read("BaseConfig", "SavePath", Application.StartupPath + "/config.ini");
+
+                        nowPcb.FrontPcb.currentRow = 0;
+                        nowPcb.FrontPcb.currentCol = 0;
+                        nowPcb.FrontPcb.currentRow = 0;
+                        nowPcb.FrontPcb.dst = null;
+                        nowPcb.FrontPcb.roi = new Rectangle();
+                        nowPcb.FrontPcb.stitchEnd = false;
+                        nowPcb.FrontPcb.savePath = INIHelper.Read("BaseConfig", "SavePath", Application.StartupPath + "/config.ini");
                     }
                 }));
             }
@@ -290,85 +290,87 @@ namespace power_aoi
                                         imageFactory.Crop(new Rectangle(startPoint, partSize))
                                                     .Save(outStream);
                                         Image.FromStream(outStream).Save(Path.Combine(@"D:\SavedPerCameraImages\crop", snowflake.nextId() + ".jpg"));
-                                 
-                                        bbox_t_container boxlist = new bbox_t_container();
-                                        //byte[] detectByte = Utils.StreamToBytes(outStream);
-                                        byte[] detectByte = outStream.ToArray();
-                                        imageFactory.Dispose();
-                                        inStream.Dispose();
-                                        outStream.Dispose();
-                                        if (p.zTrajectory)
-                                        {
-                                            int n = -1;
-                                            lock (ALock)
-                                            {
-                                                try
-                                                {
-                                                    n = AiSdkFront.detect_opencv_mat(detectByte, detectByte.Length, ref boxlist, p.confidence);
-                                                }
-                                                catch(Exception er)
-                                                {
-                                                    LogHelper.WriteLog("正面AI调用失败", er);
-                                                }
-                                            }
-                                            if (n == -1)
-                                            {
-                                                LogHelper.WriteLog("正面AI调用失败");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            int n = -1;
-                                            lock (BLock)
-                                            {
-                                                try
-                                                {
-                                                    n = AiSdkBack.detect_opencv_mat(detectByte, detectByte.Length, ref boxlist, p.confidence);
-                                                }
-                                                catch (Exception er)
-                                                {
-                                                    LogHelper.WriteLog("反面AI调用失败", er);
-                                                }
-                                            }
-                                            if (n == -1)
-                                            {
-                                                LogHelper.WriteLog("反面AI调用失败");
-                                            }
-                                        }
-                                        if (boxlist.bboxlist.Length > 0)
-                                        {
 
-                                            for (int f = 0; f < boxlist.bboxlist.Length; f++)
-                                            {
-                                                if (boxlist.bboxlist[f].h == 0)
-                                                {
-                                                    break;
-                                                }
-                                                else
-                                                {
-                                                    string id = snowflake.nextId().ToString();
-                                                    bbox_t bbox = boxlist.bboxlist[f];
-                                                    bbox.x = bbox.x + (uint)startPoint.X + (uint)p.roi.X;
-                                                    bbox.y = bbox.y + (uint)startPoint.Y + (uint)p.roi.Y;
+                                        #region AI检测
+                                        //bbox_t_container boxlist = new bbox_t_container();
+                                        ////byte[] detectByte = Utils.StreamToBytes(outStream);
+                                        //byte[] detectByte = outStream.ToArray();
+                                        //imageFactory.Dispose();
+                                        //inStream.Dispose();
+                                        //outStream.Dispose();
+                                        //if (p.zTrajectory)
+                                        //{
+                                        //    int n = -1;
+                                        //    lock (ALock)
+                                        //    {
+                                        //        try
+                                        //        {
+                                        //            n = AiSdkFront.detect_opencv_mat(detectByte, detectByte.Length, ref boxlist, p.confidence);
+                                        //        }
+                                        //        catch (Exception er)
+                                        //        {
+                                        //            LogHelper.WriteLog("正面AI调用失败", er);
+                                        //        }
+                                        //    }
+                                        //    if (n == -1)
+                                        //    {
+                                        //        LogHelper.WriteLog("正面AI调用失败");
+                                        //    }
+                                        //}
+                                        //else
+                                        //{
+                                        //    int n = -1;
+                                        //    lock (BLock)
+                                        //    {
+                                        //        try
+                                        //        {
+                                        //            n = AiSdkBack.detect_opencv_mat(detectByte, detectByte.Length, ref boxlist, p.confidence);
+                                        //        }
+                                        //        catch (Exception er)
+                                        //        {
+                                        //            LogHelper.WriteLog("反面AI调用失败", er);
+                                        //        }
+                                        //    }
+                                        //    if (n == -1)
+                                        //    {
+                                        //        LogHelper.WriteLog("反面AI调用失败");
+                                        //    }
+                                        //}
+                                        //if (boxlist.bboxlist.Length > 0)
+                                        //{
 
-                                                    lock (nowPcb.results)
-                                                    {
-                                                        nowPcb.results.Add(new Result()
-                                                        {
-                                                            Id = id,
-                                                            IsBack = Convert.ToInt32(!p.zTrajectory),
-                                                            score = bbox.prob,
-                                                            PcbId = nowPcb.Id,
-                                                            Area = "",
-                                                            Region = "这里面积要重新整过",
-                                                            NgType = AiSdkFront.names[(int)bbox.obj_id],
-                                                            PartImagePath = id + ".jpg",
-                                                            CreateTime = DateTime.Now
-                                                        });
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        //    for (int f = 0; f < boxlist.bboxlist.Length; f++)
+                                        //    {
+                                        //        if (boxlist.bboxlist[f].h == 0)
+                                        //        {
+                                        //            break;
+                                        //        }
+                                        //        else
+                                        //        {
+                                        //            string id = snowflake.nextId().ToString();
+                                        //            bbox_t bbox = boxlist.bboxlist[f];
+                                        //            bbox.x = bbox.x + (uint)startPoint.X + (uint)p.roi.X;
+                                        //            bbox.y = bbox.y + (uint)startPoint.Y + (uint)p.roi.Y;
+
+                                        //            lock (nowPcb.results)
+                                        //            {
+                                        //                nowPcb.results.Add(new Result()
+                                        //                {
+                                        //                    Id = id,
+                                        //                    IsBack = Convert.ToInt32(!p.zTrajectory),
+                                        //                    score = bbox.prob,
+                                        //                    PcbId = nowPcb.Id,
+                                        //                    Area = "",
+                                        //                    Region = "这里面积要重新整过",
+                                        //                    NgType = AiSdkFront.names[(int)bbox.obj_id],
+                                        //                    PartImagePath = id + ".jpg",
+                                        //                    CreateTime = DateTime.Now
+                                        //                });
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //}
+                                        #endregion
                                     }
                                     num++;
                                     startPoint = new Point(startPoint.X + subWidth, startPoint.Y);
@@ -412,7 +414,6 @@ namespace power_aoi
                     lock (ALock)
                     {
                         n = AiSdkFront.detect_opencv_mat(byteImg, byteImg.Length, ref boxlist);
-                        allNum++;
                     }
                     if (n == -1)
                     {
@@ -425,7 +426,6 @@ namespace power_aoi
                     lock (BLock)
                     {
                         n = AiSdkBack.detect_opencv_mat(byteImg, byteImg.Length, ref boxlist);
-                        allNum++;
                     }
                     if (n == -1)
                     {
@@ -455,7 +455,7 @@ namespace power_aoi
                                     score = bbox.prob,
                                     PcbId = nowPcb.Id,
                                     Area = "",
-                                    Region = "这里面积要重新整过",
+                                    Region = bbox.x + "," + bbox.y + "," + bbox.w + "," + bbox.h,
                                     NgType = AiSdkFront.names[(int)bbox.obj_id],
                                     PartImagePath = id + ".jpg",
                                     CreateTime = DateTime.Now
@@ -465,7 +465,7 @@ namespace power_aoi
                     }
                 }
                 bmp.Dispose();
-
+                allNum++;
                 aiDone(oneStitchSidePcb);
                 //最总检测的结果还是放在这里发送吧
 
@@ -556,72 +556,6 @@ namespace power_aoi
             return 666;
         }
 
-    
-
-        /// <summary>
-        /// 正面拍摄结束监听
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PlcFrontCaptureStatusTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            int addressA = 1133;
-            ////检测拍完信号
-            byte[] receiveData = new byte[255];
-            int num = Plc.ReadData(addressA, 2, receiveData);
-            double resVal = receiveData[11] * Math.Pow(256, 3) + receiveData[12] * Math.Pow(256, 2) + receiveData[9] * Math.Pow(256, 1) + receiveData[10];
-            if (Utils.DoubleEquals(resVal, 1.00)) //拍摄完成
-            {
-                plcFrontCaptureStatusTimer.Stop();
-                LogHelper.WriteLog("正面拍摄完成,发送出板信息");
-                Plc.APcbOut();
-                frontWorkingForm.BeginInvoke((Action)(() =>
-                {
-                    frontWorkingForm.imgBoxWorking.Text += "拍摄完成 已发送出板信息";
-                    frontWorkingForm.imgBoxWorking.SelectionRegion = new RectangleF();
-                }));
-            }
-            //Console.WriteLine("Front end Listening");
-        }
-
-        /// <summary>
-        /// 反面拍摄结束监听
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PlcBackCaptureStatusTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            int addressB = 1135;
-            byte[] receiveData = new byte[255];
-            int num = Plc.ReadData(addressB, 2, receiveData);
-            double resVal = receiveData[11] * Math.Pow(256, 3) + receiveData[12] * Math.Pow(256, 2) + receiveData[9] * Math.Pow(256, 1) + receiveData[10];
-            if (Utils.DoubleEquals(resVal, 1.00)) //拍摄完成
-            {
-                plcBackCaptureStatusTimer.Stop();
-                LogHelper.WriteLog("反面拍摄完成,发送出板信息");
-                Plc.BPcbOut();
-                backWorkingForm.BeginInvoke((Action)(() =>
-                {
-                    backWorkingForm.imgBoxWorking.Text += "拍摄完成 已发送出板信息";
-                    backWorkingForm.imgBoxWorking.SelectionRegion = new RectangleF();
-                }));
-            }
-            //Console.WriteLine("Back end Listening");
-        }
-
-        /// <summary>
-        /// 弃用
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void WorkDoneTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            //if (allNum >= )
-            //{
-
-            //}
-        }
-
         /// <summary>
         /// 监控板子到位信息
         /// </summary>
@@ -631,6 +565,17 @@ namespace power_aoi
         {
             if (Plc.CheckPcbReady() && isIdle) //只有在板子到位了并且空闲的时候进行
             {
+                frontWorkingForm.BeginInvoke((Action)(() =>
+                {
+                    frontWorkingForm.Ini();
+                    frontWorkingForm.ShowDefaultImage();
+                }));
+                backWorkingForm.BeginInvoke((Action)(() =>
+                {
+                    backWorkingForm.Ini();
+                    backWorkingForm.ShowDefaultImage();
+                }));
+
                 isIdle = false;
                 byte[] receiveData = new byte[255];
                 LogHelper.WriteLog("板子到位并且空闲，开始工作");
@@ -640,7 +585,16 @@ namespace power_aoi
                 }
                 else
                 {
-                    run(nowPcb.FrontPcb);
+                    string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
+                    if (!Directory.Exists(path))
+                    {
+                        nowPcb.FrontPcb.savePath = path;
+                        Directory.CreateDirectory(path);
+                    }
+                    MySmartThreadPool.Instance().QueueWorkItem((one) =>
+                    {
+                        run(one);
+                    }, nowPcb.FrontPcb);
                 }
 
                 if (nowPcb.BackPcb == null)
@@ -649,10 +603,17 @@ namespace power_aoi
                 }
                 else
                 {
-                    run(nowPcb.BackPcb);
+                    string path = Path.Combine(Path.Combine(nowPcb.BackPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
+                    if (!Directory.Exists(path))
+                    {
+                        nowPcb.BackPcb.savePath = path;
+                        Directory.CreateDirectory(path);
+                    }
+                    MySmartThreadPool.Instance().QueueWorkItem((one) =>
+                    {
+                        run(one);
+                    }, nowPcb.BackPcb);
                 }
-                //开启拍完监控
-                //plcFrontCaptureStatusTimer.Start();
             }
         }
 
@@ -670,10 +631,6 @@ namespace power_aoi
             {
                 for (int i = 0; i < oneStitchSidePcb.x.Count; i++)
                 {
-                    if (i == oneStitchSidePcb.x.Count)
-                    {
-                        continue;
-                    }
                     if (i % 2 == 1)
                     {
                         int k = 0;
@@ -728,18 +685,30 @@ namespace power_aoi
                     Plc.WriteData(oneStitchSidePcb.addressStartCapture, 1, newwriteValue, receiveData);
                     //需要等待拍摄完成后，继续发，而不是直接发
 
-                    while (true)
+                    bool isEnd = false;
+                    while (!isEnd)
                     {
                         ////检测拍完信号
                         byte[] newreceiveData = new byte[255]; //{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
                         int num = PLCController.Instance.ReadData(oneStitchSidePcb.addressEndCapture, 2, newreceiveData);
                         double newvalue = newreceiveData[11] * Math.Pow(256, 3) + newreceiveData[12] * Math.Pow(256, 2) + newreceiveData[9] * Math.Pow(256, 1) + newreceiveData[10];
-                        if (Utils.DoubleEquals(newvalue, 1.00)) //拍摄完成
+                        if (Utils.DoubleEquals(newvalue, 0.00)) //拍摄完成
                         {
-                            break;
+                            while (!isEnd)
+                            {
+                                ////检测拍完信号
+                                newreceiveData = new byte[255]; //{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
+                                num = PLCController.Instance.ReadData(oneStitchSidePcb.addressEndCapture, 2, newreceiveData);
+                                newvalue = newreceiveData[11] * Math.Pow(256, 3) + newreceiveData[12] * Math.Pow(256, 2) + newreceiveData[9] * Math.Pow(256, 1) + newreceiveData[10];
+                                if (Utils.DoubleEquals(newvalue, 1.00)) //拍摄完成
+                                {
+                                    isEnd = true;
+                                    break;
+                                }
+                                Thread.Sleep(20);
+                                Console.WriteLine("持续检测单行拍摄是否完成");
+                            }
                         }
-                        Thread.Sleep(50);
-                        Console.WriteLine("持续检测单行拍摄是否完成");
                     }
                 }
             }
@@ -821,13 +790,6 @@ namespace power_aoi
             {
                 LogHelper.WriteLog(m_imageProvider.GetLastErrorMessage(), e);
             }
-        }
-
-        /* Handles the click on the stop frame acquisition button. */
-        private void toolStripButtonStop_Click(object sender, EventArgs e)
-        {
-            Stop(); /* Stops the grabbing of images. */
-            CloseTheImageProvider();
         }
 
         /* Handles the event related to the occurrence of an error while grabbing proceeds. */
@@ -932,12 +894,7 @@ namespace power_aoi
                     //}
                     /* Check if the image is compatible with the currently used bitmap. */
                     Bitmap m_bitmap = null;
-                    string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
-                    nowPcb.FrontPcb.savePath = path;
-                    if (!Directory.Exists(path))
-                    {
-                        Directory.CreateDirectory(path);
-                    }
+                   
                     if (BitmapFactory.IsCompatible(m_bitmap, image.Width, image.Height, image.Color))
                     {
                         /* Update the bitmap with the image data. */
@@ -963,7 +920,7 @@ namespace power_aoi
                         {
                             Aoi.StitchMain(nowPcb.FrontPcb, onStitchCallBack);
                         }
-                    }, m_bitmap, Path.Combine(Path.Combine(path, "F" + frontCameraNum + ".jpg")));
+                    }, m_bitmap, Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, "F" + frontCameraNum + ".jpg")));
                     frontCameraNum++;
                 }
             }
@@ -992,12 +949,6 @@ namespace power_aoi
                 /* Check if the image has been removed in the meantime. */
                 if (image != null)
                 {
-                    string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
-                    nowPcb.BackPcb.savePath = path;
-                    if (!Directory.Exists(path))
-                    {
-                        Directory.CreateDirectory(path);
-                    }
                     Bitmap m_bitmap = null;
                     /* Check if the image is compatible with the currently used bitmap. */
                     if (BitmapFactory.IsCompatible(m_bitmap, image.Width, image.Height, image.Color))
@@ -1024,7 +975,7 @@ namespace power_aoi
                         {
                             Aoi.StitchMain(nowPcb.BackPcb, onStitchCallBack);
                         }
-                    }, m_bitmap, Path.Combine(Path.Combine(path, "B" + backCameraNum + ".jpg")));
+                    }, m_bitmap, Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, "B" + backCameraNum + ".jpg")));
                     backCameraNum++;
                 }
             }
@@ -1170,7 +1121,7 @@ namespace power_aoi
                             //jsonData.data = nowPcb;
                             //RabbitMQClientHandler.GetInstance(onRabbitmqMessageCallback, onRabbitmqConnectCallback)
                             //.TopicExchangePublishMessageToServerAndWaitConfirm("", "work", "work", JsonConvert.SerializeObject(jsonData));
-                            string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
+                            //string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
 
                             //if (!Directory.Exists(path))
                             //{
@@ -1237,39 +1188,7 @@ namespace power_aoi
                     }
                     break;
                 case "开发测试按钮":
-                    //startWork = new StartWork();
-                    //dialogResult = startWork.ShowDialog();
-                    //if (dialogResult == DialogResult.Yes)
-                    //{
-                    //    isIdle = true;
-                    //    plcCheckReadyTimer.Start();//开启板子到位检测
-                    //    allNum = 0;
-                    //    sw.Restart();
-                    //    nowPcb = startWork.Tag as Pcb;
-
-                    //    MySmartThreadPool.Instance().QueueWorkItem((Action)(() =>
-                    //    {
-                    //        try
-                    //        {
-                    //            JsonData<Pcb> jsonData = new JsonData<Pcb>();
-                    //            jsonData.data = nowPcb;
-
-                    //            var jSetting = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                    //            string[] props = { /*"version", "key", "data",*/ "FrontPcb", "BackPcb" }; //排除掉，不能让前端看到的字段。为true的话就是只保留这些字段
-                    //            jSetting.ContractResolver = new LimitPropsContractResolver(props, false);
-
-                    //            string res = JsonConvert.SerializeObject(jsonData, jSetting);
-                    //            RabbitMQClientHandler.GetInstance(onRabbitmqMessageCallback, onRabbitmqConnectCallback)
-                    //            .TopicExchangePublishMessageToServerAndWaitConfirm("", "work", "work", res);
-                    //        }
-                    //        catch (Exception er)
-                    //        {
-                    //            LogHelper.WriteLog("连接队列失败!!!");
-                    //        }
-                    //    }));
-                    //}
-
-
+                   
                     startWork = new StartWork();
                     dialogResult = startWork.ShowDialog();
                     if (dialogResult == DialogResult.Yes)
@@ -1280,9 +1199,6 @@ namespace power_aoi
                         sw.Restart();
                         nowPcb = startWork.Tag as Pcb;
 
-                        #region 设置一下轨道宽度
-                        Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5));
-                        #endregion
 
                         MySmartThreadPool.Instance().QueueWorkItem((p, frontForm, backForm) =>
                         {
@@ -1296,21 +1212,17 @@ namespace power_aoi
                                 backWorkingForm.Ini();
                                 backWorkingForm.ShowDefaultImage();
                             }));
-                            //JsonData<Pcb> jsonData = new JsonData<Pcb>();
-                            //jsonData.data = nowPcb;
-                            //RabbitMQClientHandler.GetInstance(onRabbitmqMessageCallback, onRabbitmqConnectCallback)
-                            //.TopicExchangePublishMessageToServerAndWaitConfirm("", "work", "work", JsonConvert.SerializeObject(jsonData));
+
                             string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
 
                             if (!Directory.Exists(path))
                             {
                                 Directory.CreateDirectory(path);
                             }
-
                             for (int i = 0; i <= 59; i++)
                             {
-                                Bitmap fBitmap = new Bitmap(Path.Combine(@"D:\SavedPerCameraImages\4.9\test", "F" + i + ".jpg"));
-                                Bitmap bBitmap = new Bitmap(Path.Combine(@"D:\SavedPerCameraImages\4.9\test", "B" + i + ".jpg"));
+                                Bitmap fBitmap = new Bitmap(Path.Combine(@"C:\Users\Administrator\Desktop\suomi-test-img\764-Ng", "F" + i + ".jpg"));
+                                Bitmap bBitmap = new Bitmap(Path.Combine(@"C:\Users\Administrator\Desktop\suomi-test-img\764-Ng", "B" + i + ".jpg"));
                                 nowPcb.FrontPcb.bitmaps.Enqueue(fBitmap);
                                 nowPcb.BackPcb.bitmaps.Enqueue(bBitmap);
                                 nowPcb.FrontPcb.savePath = path;
@@ -1341,7 +1253,8 @@ namespace power_aoi
                     break;
             }
         }
-        private void 初始化窗体布局ToolStripMenuItem_Click(object sender, EventArgs e)
+
+        private void IniFormToolStripMenuItem_Click(object sender, EventArgs e)
         {
             toolBarForm.DockPanel = null;
             frontWorkingForm.DockPanel = null;
@@ -1352,7 +1265,7 @@ namespace power_aoi
                 dockPanel1.LoadFromXml(configFile, m_deserializeDockContent);
         }
 
-        private void 保存窗体布局ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SaveFormToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string configFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
             dockPanel1.SaveAsXml(configFile);
@@ -1386,16 +1299,17 @@ namespace power_aoi
 
         private void CloseApplication()
         {
-            //先关闭相机
             try
             {
                 Plc.PcbOut();
+                #region 先关闭相机
                 this.Stop();
+                CloseTheImageProvider();
+                #endregion
                 AiSdkFront.dispose();
                 AiSdkBack.dispose();
                 frontWorkingForm.imgBoxWorking.Dispose();
                 backWorkingForm.imgBoxWorking.Dispose();
-
             }
             catch (Exception er)
             {
