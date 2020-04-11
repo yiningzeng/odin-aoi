@@ -1,5 +1,6 @@
 ﻿using Emgu.CV;
 using Emgu.CV.Structure;
+using Odin_aoi.Tools;
 using power_aoi.DockerPanelOdin;
 using power_aoi.Model;
 using System;
@@ -173,9 +174,18 @@ namespace power_aoi.Tools
                 Mat smallmat =new Mat();
                 CvInvoke.Resize(oneSidePcb.dst, smallmat, new Size(Convert.ToInt32(oneSidePcb.dst.Cols * oneSidePcb.scale), Convert.ToInt32(oneSidePcb.dst.Rows * oneSidePcb.scale)));
                 if (oneSidePcb.zTrajectory)
-                    smallmat.Save(Path.Combine(oneSidePcb.savePath, "Front.jpg"));
+                {
+                    string saveFile = Path.Combine(oneSidePcb.savePath, "front.jpg");
+                    smallmat.Save(saveFile);
+                    Ftp.UpLoadFile(saveFile, Ftp.ftpPath + oneSidePcb.pcbId + "/front.jpg");
+                }
                 else
-                    smallmat.Save(Path.Combine(oneSidePcb.savePath, "Back.jpg"));
+                {
+                    string saveFile = Path.Combine(oneSidePcb.savePath, "back.jpg");
+                    smallmat.Save(saveFile);
+                    Ftp.UpLoadFile(saveFile, Ftp.ftpPath + oneSidePcb.pcbId + "/back.jpg");
+                }
+            
             }
         }
     }

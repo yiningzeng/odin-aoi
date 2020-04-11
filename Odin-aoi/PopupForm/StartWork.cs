@@ -93,7 +93,7 @@ namespace power_aoi.PopupForm
                     addressStartCapture = 2144,
                     addressEndCapture = 1133,
                     addressOneSidePcbOut = 2145,
-
+                    pcbId = id,
                     x = Xycoordinate.axcoordinate((int)Math.Ceiling((float)xvalue / Plc.capturePointIntervalXInMM), (int)(Plc.capturePointIntervalXInMM), xdifferencevalue),
                     y = Xycoordinate.aycoordinate((int)Math.Ceiling((float)yvalue / Plc.capturePointIntervalYInMM), (int)(Plc.capturePointIntervalYInMM), ydifferencevalue),
 
@@ -111,7 +111,7 @@ namespace power_aoi.PopupForm
                     addressStartCapture = 2146,
                     addressEndCapture = 1135,
                     addressOneSidePcbOut = 2147,
-
+                    pcbId = id,
                     x = Xycoordinate.bxcoordinate((int)Math.Ceiling((float)xvalue / Plc.capturePointIntervalXInMM), (int)(Plc.capturePointIntervalXInMM), xdifferencevalue),
                     y = Xycoordinate.bycoordinate((int)Math.Ceiling((float)yvalue / Plc.capturePointIntervalYInMM), (int)(Plc.capturePointIntervalYInMM), ydifferencevalue),
 

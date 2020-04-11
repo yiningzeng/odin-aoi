@@ -38,7 +38,7 @@ namespace power_aoi.Model
         #endregion
 
         #region 其他参数
-
+        public string pcbId;
         public string savePath;
         #endregion
 

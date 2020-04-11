@@ -183,7 +183,7 @@ namespace power_aoi
                     try
                     {
                         #region 松开
-                        Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5) + 1.4 * 1562.5);
+                        Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5) + 1.1 * 1562.5);
                         #endregion
 
                         MySmartThreadPool.InstanceSmall().WaitForIdle();
@@ -197,39 +197,24 @@ namespace power_aoi
                         long times = sw.ElapsedMilliseconds / 1000;
                         Console.WriteLine("执行总共使用了, total :" + times + "s 秒");
                         //MessageBox.Show("执行查询总共使用了, total :" + times + "s 秒");
-                        MySmartThreadPool.Instance().QueueWorkItem(() =>
+                        try
                         {
-                            Ftp.MakeDir(Ftp.ftpPath, nowPcb.Id);
-                            string localPath = "";
-                            if (nowPcb.FrontPcb != null)
-                            {
-                                localPath = nowPcb.FrontPcb.savePath;
-                            }
-                            else if (nowPcb.BackPcb != null)
-                            {
-                                localPath = nowPcb.BackPcb.savePath;
-                            }
-                            Ftp.UpLoadFile(localPath + "/front.jpg", Ftp.ftpPath + nowPcb.Id + "/front.jpg");
-                            Ftp.UpLoadFile(localPath + "/back.jpg", Ftp.ftpPath + nowPcb.Id + "/back.jpg");
-                            try
-                            {
-                                JsonData<Pcb> jsonData = new JsonData<Pcb>();
-                                jsonData.data = nowPcb;
+                            JsonData<Pcb> jsonData = new JsonData<Pcb>();
+                            jsonData.data = nowPcb;
 
-                                var jSetting = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                                string[] props = { "FrontPcb", "BackPcb" }; //排除掉，不能让前端看到的字段。为true的话就是只保留这些字段
-                                jSetting.ContractResolver = new LimitPropsContractResolver(props, false);
+                            var jSetting = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+                            string[] props = { "FrontPcb", "BackPcb" }; //排除掉，不能让前端看到的字段。为true的话就是只保留这些字段
+                            jSetting.ContractResolver = new LimitPropsContractResolver(props, false);
 
-                                string res = JsonConvert.SerializeObject(jsonData, jSetting);
-                                LogHelper.WriteLog(res);
-                                RabbitMQClientHandler.GetInstance(onRabbitmqMessageCallback, onRabbitmqConnectCallback)
-                                .TopicExchangePublishMessageToServerAndWaitConfirm("", "work", "work", res);
-                            }
-                            catch (Exception er)
-                            {
-                                LogHelper.WriteLog("连接队列失败!!!", er);
-                            }
-                        });
+                            string res = JsonConvert.SerializeObject(jsonData, jSetting);
+                            LogHelper.WriteLog(res);
+                            RabbitMQClientHandler.GetInstance(onRabbitmqMessageCallback, onRabbitmqConnectCallback)
+                            .TopicExchangePublishMessageToServerAndWaitConfirm("", "work", "work", res);
+                        }
+                        catch (Exception er)
+                        {
+                            LogHelper.WriteLog("连接队列失败!!!", er);
+                        }
                     }
                     catch (Exception er)
                     {
@@ -243,7 +228,7 @@ namespace power_aoi
                         allNum = 0;
 
                         nowPcb.Id = new Snowflake(5).nextId().ToString();
-
+                        nowPcb.results.Clear();
                         nowPcb.BackPcb.currentRow = 0;
                         nowPcb.BackPcb.currentCol = 0;
                         nowPcb.BackPcb.currentRow = 0;
@@ -251,7 +236,7 @@ namespace power_aoi
                         nowPcb.BackPcb.roi = new Rectangle();
                         nowPcb.BackPcb.stitchEnd = false;
                         nowPcb.BackPcb.savePath = INIHelper.Read("BaseConfig", "SavePath", Application.StartupPath + "/config.ini");
-
+                        nowPcb.BackPcb.pcbId = nowPcb.Id;
                         nowPcb.FrontPcb.currentRow = 0;
                         nowPcb.FrontPcb.currentCol = 0;
                         nowPcb.FrontPcb.currentRow = 0;
@@ -259,6 +244,7 @@ namespace power_aoi
                         nowPcb.FrontPcb.roi = new Rectangle();
                         nowPcb.FrontPcb.stitchEnd = false;
                         nowPcb.FrontPcb.savePath = INIHelper.Read("BaseConfig", "SavePath", Application.StartupPath + "/config.ini");
+                        nowPcb.FrontPcb.pcbId = nowPcb.Id;
                     }
                 }));
             }
@@ -580,8 +566,10 @@ namespace power_aoi
             if (Plc.CheckPcbReady() && isIdle) //只有在板子到位了并且空闲的时候进行
             {
                 #region 加紧
-                Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5));
+                Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5) - 1.1 * 1562.5);
                 #endregion
+
+                Ftp.MakeDir(Ftp.ftpPath, nowPcb.Id);
 
                 frontWorkingForm.BeginInvoke((Action)(() =>
                 {
@@ -690,11 +678,11 @@ namespace power_aoi
                     }
 
                     Plc.WriteData(oneStitchSidePcb.addressX, oneStitchSidePcb.y.Count * 2, writeValueX, receiveData);
-                    Thread.Sleep(10);
+                    Thread.Sleep(50);
                     Plc.WriteData(oneStitchSidePcb.addressY, oneStitchSidePcb.y.Count * 2, writeValueY, receiveData);
-                    Thread.Sleep(10);
+                    Thread.Sleep(50);
                     Plc.WriteData(oneStitchSidePcb.addressCaptureNum, 2, Plc.DoubleToByte(oneStitchSidePcb.y.Count), receiveData); // 设置拍摄数量
-
+                    Thread.Sleep(50);
                     double value = 1.00;
                     byte[] newwriteValue = new byte[2];
                     newwriteValue[0] = (byte)(value / Math.Pow(256, 1));
@@ -890,12 +878,12 @@ namespace power_aoi
         /* Handles the event related to an image having been taken and waiting for processing. A面拍照 */
         private void OnImageReadyEventCallback()
         {
-            if (InvokeRequired)
-            {
-                /* If called from a different thread, we must use the Invoke method to marshal the call to the proper thread. */
-                BeginInvoke(new ImageProvider.ImageReadyEventHandler(OnImageReadyEventCallback));
-                return;
-            }
+            //if (InvokeRequired)
+            //{
+            //    /* If called from a different thread, we must use the Invoke method to marshal the call to the proper thread. */
+            //    BeginInvoke(new ImageProvider.ImageReadyEventHandler(OnImageReadyEventCallback));
+            //    return;
+            //}
 
             try
             {
@@ -952,12 +940,12 @@ namespace power_aoi
         /* Handles the event related to an image having been taken and waiting for processing. B面拍照 */
         private void OnImageReadyEventCallbackB()
         {
-            if (InvokeRequired)
-            {
-                /* If called from a different thread, we must use the Invoke method to marshal the call to the proper thread. */
-                BeginInvoke(new ImageProvider.ImageReadyEventHandler(OnImageReadyEventCallbackB));
-                return;
-            }
+            //if (InvokeRequired)
+            //{
+            //    /* If called from a different thread, we must use the Invoke method to marshal the call to the proper thread. */
+            //    BeginInvoke(new ImageProvider.ImageReadyEventHandler(OnImageReadyEventCallbackB));
+            //    return;
+            //}
 
             try
             {
@@ -1081,17 +1069,13 @@ namespace power_aoi
             onRabbitmqConnectCallback = new RabbitmqConnectCallback(RabbitmqConnected);
 
             #region 加载AI
-            //MessagePopupForm messagePopupForm = new MessagePopupForm();
-            //DialogResult dialogResult = messagePopupForm.ShowDialog();
-            //if (dialogResult == DialogResult.No)
-            //{
-            //    MessageBox.Show("AI初始化失败，需要重启软件才能继续工作！", "提示", MessageBoxButtons.OK);
-            //    CloseApplication();
-            //}
-            //MySmartThreadPool.Instance().QueueWorkItem(() =>
-            //{
-
-            //});
+            MessagePopupForm messagePopupForm = new MessagePopupForm();
+            DialogResult dialogResult = messagePopupForm.ShowDialog();
+            if (dialogResult == DialogResult.No)
+            {
+                MessageBox.Show("AI初始化失败，需要重启软件才能继续工作！", "提示", MessageBoxButtons.OK);
+                CloseApplication();
+            }
             #endregion
 
             #region 初始化PLC
@@ -1119,8 +1103,8 @@ namespace power_aoi
                         sw.Restart();
                         nowPcb = startWork.Tag as Pcb;
 
-                        #region 加紧
-                        Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5) - 1.4 * 1562.5);
+                        #region 重置轨道宽度
+                        Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5));
                         #endregion
 
                         MySmartThreadPool.Instance().QueueWorkItem((p, frontForm, backForm) =>
@@ -1203,8 +1187,8 @@ namespace power_aoi
                             }
                             for (int i = 0; i <= 59; i++)
                             {
-                                Bitmap fBitmap = new Bitmap(Path.Combine(@"C:\Users\Administrator\Desktop\suomi-test-img\764-Ng", "F" + i + ".jpg"));
-                                Bitmap bBitmap = new Bitmap(Path.Combine(@"C:\Users\Administrator\Desktop\suomi-test-img\764-Ng", "B" + i + ".jpg"));
+                                Bitmap fBitmap = new Bitmap(Path.Combine(@"D:\SavedPerCameraImages\4.9\2-Ng", "F" + i + ".jpg"));
+                                Bitmap bBitmap = new Bitmap(Path.Combine(@"D:\SavedPerCameraImages\4.9\2-Ng", "B" + i + ".jpg"));
                                 nowPcb.FrontPcb.bitmaps.Enqueue(fBitmap);
                                 nowPcb.BackPcb.bitmaps.Enqueue(bBitmap);
                                 nowPcb.FrontPcb.savePath = path;
