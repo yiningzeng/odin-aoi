@@ -56,7 +56,6 @@ namespace power_aoi.Model
         [Column(name: "surface_number")]
         [Description("检测的面数")]
         public int SurfaceNumber { get; set; }
-        
 
         [Column(name: "pcb_path")]
         [StringLength(250)]
@@ -79,6 +78,9 @@ namespace power_aoi.Model
 
         public List<Result> results { get; set; }
 
+        [NotMapped]
+        [Description("总的图片数量")]
+        public int AllPhotoNum { get; set; }
         [NotMapped]
         [Description("主要用于创建的新的pcb的时候的正反面标识")]
         public int SideIndex { get; set; }
@@ -124,9 +126,13 @@ namespace power_aoi.Model
                 byte[] receiveData = new byte[255];
                 var frontX = Xycoordinate.axcoordinate((int)Math.Ceiling((float)xvalue / Plc.capturePointIntervalXInMM), (int)(Plc.capturePointIntervalXInMM), xdifferencevalue);
                 var frontY = Xycoordinate.aycoordinate((int)Math.Ceiling((float)yvalue / Plc.capturePointIntervalYInMM), (int)(Plc.capturePointIntervalYInMM), ydifferencevalue);
+                bool frontDetectMultiScale = INIHelper.ReadBoolean("FrontAiPars", "detectMultiScale", false, Application.StartupPath + "/config.ini");
                 OneStitchSidePcb front = new OneStitchSidePcb()
                 {
+                    overlap = INIHelper.ReadInteger("FrontAiPars", "overlap", 50, Application.StartupPath + "/config.ini"),
+                    saveCropImg = INIHelper.ReadBoolean("FrontAiPars", "saveCropImg", false, Application.StartupPath + "/config.ini"),
                     equalDivision = INIHelper.ReadInteger("FrontAiPars", "equalDivision", 1, Application.StartupPath + "/config.ini"),
+                    detectMultiScale = frontDetectMultiScale,
                     confidence = float.Parse(INIHelper.Read("FrontAiPars", "confidence", Application.StartupPath + "/config.ini")),
 
                     addressX = 3000,
@@ -144,7 +150,7 @@ namespace power_aoi.Model
 
                     allRows = frontX.Count,
                     allCols = frontY.Count,
-                    allNum = frontX.Count * frontY.Count,
+                    allNum = frontDetectMultiScale ? frontX.Count * frontY.Count * 2 : frontX.Count * frontY.Count, // 这里多尺度是需要改变总数*2的
                     currentRow = 0,
                     currentCol = 0,
                     zTrajectory = true,
@@ -157,9 +163,13 @@ namespace power_aoi.Model
 
                 var backX = Xycoordinate.bxcoordinate((int)Math.Ceiling((float)xvalue / Plc.capturePointIntervalXInMM), (int)(Plc.capturePointIntervalXInMM), xdifferencevalue);
                 var backY = Xycoordinate.bycoordinate((int)Math.Ceiling((float)yvalue / Plc.capturePointIntervalYInMM), (int)(Plc.capturePointIntervalYInMM), ydifferencevalue);
+                bool backDetectMultiScale = INIHelper.ReadBoolean("BackAiPars", "detectMultiScale", false, Application.StartupPath + "/config.ini");
                 OneStitchSidePcb back = new OneStitchSidePcb()
                 {
+                    overlap = INIHelper.ReadInteger("BackAiPars", "overlap", 50, Application.StartupPath + "/config.ini"),
+                    saveCropImg = INIHelper.ReadBoolean("BackAiPars", "saveCropImg", false, Application.StartupPath + "/config.ini"),
                     equalDivision = INIHelper.ReadInteger("BackAiPars", "equalDivision", 1, Application.StartupPath + "/config.ini"),
+                    detectMultiScale = backDetectMultiScale,
                     confidence = float.Parse(INIHelper.Read("BackAiPars", "confidence", Application.StartupPath + "/config.ini")),
 
                     addressX = 3400,
@@ -177,7 +187,7 @@ namespace power_aoi.Model
 
                     allRows = backX.Count,
                     allCols = backY.Count,
-                    allNum = backX.Count * backY.Count,
+                    allNum = backDetectMultiScale ? backX.Count * backY.Count * 2 : backX.Count * backY.Count,
                     currentRow = 0,
                     currentCol = 0,
                     zTrajectory = false,
@@ -194,16 +204,19 @@ namespace power_aoi.Model
                         pcb.SurfaceNumber = 2;
                         pcb.BackPcb = back;
                         pcb.FrontPcb = front;
+                        pcb.AllPhotoNum = back.allNum + front.allNum;
                         break;
                     case 1:
                         pcb.SurfaceNumber = 1;
                         pcb.BackPcb = null;
                         pcb.FrontPcb = front;
+                        pcb.AllPhotoNum = front.allNum;
                         break;
                     case 2:
                         pcb.SurfaceNumber = 1;
                         pcb.BackPcb = back;
                         pcb.FrontPcb = null;
+                        pcb.AllPhotoNum = back.allNum;
                         break;
                 }
                 return pcb;

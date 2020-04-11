@@ -27,7 +27,7 @@ namespace power_aoi
 
             bool Exist;//定义一个bool变量，用来表示是否已经运行
                        //创建Mutex互斥对象
-            System.Threading.Mutex newMutex = new System.Threading.Mutex(true, "仅一次", out Exist);
+            System.Threading.Mutex newMutex = new System.Threading.Mutex(true, "Odin-aoi", out Exist);
             if (Exist)//如果没有运行
             {
                 newMutex.ReleaseMutex();//运行新窗体
