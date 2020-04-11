@@ -896,7 +896,7 @@ namespace power_aoi
         public void aiDone(OneStitchSidePcb oneStitchSidePcb)
         {
             Console.WriteLine(allNum);
-            if (allNum == oneStitchSidePcb.AllNum * 2) // 暂时这么写！
+            if (allNum == oneStitchSidePcb.allNum * 2) // 暂时这么写！
             {
                 this.BeginInvoke((Action)(() =>
                 {
@@ -927,9 +927,10 @@ namespace power_aoi
                             jSetting.ContractResolver = new LimitPropsContractResolver(props, false);
 
                             string res = JsonConvert.SerializeObject(jsonData, jSetting);
-                            LogHelper.WriteLog(res);
                             RabbitMQClientHandler.GetInstance(onRabbitmqMessageCallback, onRabbitmqConnectCallback)
                             .TopicExchangePublishMessageToServerAndWaitConfirm("", "work", "work", res);
+
+                            File.WriteAllText(Path.Combine(oneStitchSidePcb.savePath, "res.json"), res);
                         }
                         catch (Exception er)
                         {
@@ -946,25 +947,6 @@ namespace power_aoi
                         frontCameraNum = 0;
                         backCameraNum = 0;
                         allNum = 0;
-
-                        nowPcb.Id = new Snowflake(5).nextId().ToString();
-                        nowPcb.results.Clear();
-                        nowPcb.BackPcb.currentRow = 0;
-                        nowPcb.BackPcb.currentCol = 0;
-                        nowPcb.BackPcb.currentRow = 0;
-                        nowPcb.BackPcb.dst = null;
-                        nowPcb.BackPcb.roi = new Rectangle();
-                        nowPcb.BackPcb.stitchEnd = false;
-                        nowPcb.BackPcb.savePath = INIHelper.Read("BaseConfig", "SavePath", Application.StartupPath + "/config.ini");
-                        nowPcb.BackPcb.pcbId = nowPcb.Id;
-                        nowPcb.FrontPcb.currentRow = 0;
-                        nowPcb.FrontPcb.currentCol = 0;
-                        nowPcb.FrontPcb.currentRow = 0;
-                        nowPcb.FrontPcb.dst = null;
-                        nowPcb.FrontPcb.roi = new Rectangle();
-                        nowPcb.FrontPcb.stitchEnd = false;
-                        nowPcb.FrontPcb.savePath = INIHelper.Read("BaseConfig", "SavePath", Application.StartupPath + "/config.ini");
-                        nowPcb.FrontPcb.pcbId = nowPcb.Id;
                     }
                 }));
             }
@@ -1005,6 +987,9 @@ namespace power_aoi
                 isIdle = false;
                 byte[] receiveData = new byte[255];
                 LogHelper.WriteLog("-kick off-");
+                
+                //重置当前pcb的信息
+                nowPcb = Pcb.CreatePcb(nowPcb.CarrierLength, nowPcb.CarrierWidth, nowPcb.PcbLength, nowPcb.PcbWidth, nowPcb.SideIndex);
 
                 sw.Restart(); // 重置计时
 

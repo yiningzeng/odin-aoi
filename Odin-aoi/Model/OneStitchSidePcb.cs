@@ -49,7 +49,7 @@ namespace power_aoi.Model
         public double or_vu = 0.08;
         public double dr_hu = 0.01; // upper bound for horizontal drift ratio
         public double dr_vu = 0.01; //
-        public int AllNum; // 图片总数
+        public int allNum; // 图片总数
         public int allRows; // 总行数
         public int allCols; // 总列数
         public int currentRow = 0; // 拼图当前行
