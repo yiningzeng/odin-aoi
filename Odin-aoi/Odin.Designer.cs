@@ -35,6 +35,7 @@
             this.dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.vS2015DarkTheme1 = new WeifenLuo.WinFormsUI.Docking.VS2015DarkTheme();
             this.visualStudioToolStripExtender1 = new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender(this.components);
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.menuStripControl = new power_aoi.UserControls.CustomMenuStripControl();
             this.tsmLogo = new System.Windows.Forms.ToolStripMenuItem();
             this.设置ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -43,7 +44,6 @@
             this.tsmClose = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmSquare = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmMin = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.menuStripControl.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -64,6 +64,7 @@
             this.imageListToolBar.Images.SetKeyName(1, "编程");
             this.imageListToolBar.Images.SetKeyName(2, "手动出板");
             this.imageListToolBar.Images.SetKeyName(3, "开发测试按钮");
+            this.imageListToolBar.Images.SetKeyName(4, "模拟一块板子");
             // 
             // dockPanel1
             // 

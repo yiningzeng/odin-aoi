@@ -12,6 +12,8 @@ namespace power_aoi.Tools
     {
         static SmartThreadPool Pool = new SmartThreadPool() { MaxThreads = INIHelper.ReadInteger("BaseConfig", "BaseMaxThreads", 0, Application.StartupPath + "/config.ini") };
         static SmartThreadPool LimitPool = new SmartThreadPool() { MaxThreads = INIHelper.ReadInteger("BaseConfig", "AiMaxThreads", 0, Application.StartupPath + "/config.ini") };
+        static SmartThreadPool TestPool = new SmartThreadPool() { MaxThreads = 2 };
+
         public static SmartThreadPool Instance()
         {
             return Pool;
@@ -21,5 +23,10 @@ namespace power_aoi.Tools
         {
             return LimitPool;
         }
+        public static SmartThreadPool InstanceTest()
+        {
+            return TestPool;
+        }
+        
     }
 }

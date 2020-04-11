@@ -15,7 +15,10 @@ namespace power_aoi.Model
     public class OneStitchSidePcb
     {
         #region AI参数
-        public int equalDivision = 1;
+        public int equalDivision = 1; // #表示检测的图像按照边长等分的数量，=2的话就是4等分
+        public int overlap = 50; // #表示等分的时候重叠的区域
+        public bool saveCropImg = false; //#是否保存等分的图片
+        public bool detectMultiScale = false; // #开启多尺度检测的时候要把equalDivision设置为2
         public float confidence = (float)0.01;
         #endregion
 
@@ -49,7 +52,7 @@ namespace power_aoi.Model
         public double or_vu = 0.08;
         public double dr_hu = 0.01; // upper bound for horizontal drift ratio
         public double dr_vu = 0.01; //
-        public int AllNum; // 图片总数
+        public int allNum; // 图片总数
         public int allRows; // 总行数
         public int allCols; // 总列数
         public int currentRow = 0; // 拼图当前行

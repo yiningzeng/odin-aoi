@@ -14,8 +14,10 @@ namespace power_aoi.Model
     public class JsonData<T>
     {
         #region 系统参数
-        public string version { get; set; } = "1.0.0";
+        public string version { get; set; } = "2.0.0";
         public string key { get; set; } = "yining";
+        public long executionTime { get; set; }
+        public int ngNum { get; set; }
         public T data { get; set; }
         #endregion
     }
