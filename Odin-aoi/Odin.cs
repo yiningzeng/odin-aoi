@@ -1135,15 +1135,26 @@ namespace power_aoi
                     dialogResult = startWork.ShowDialog();
                     if (dialogResult == DialogResult.Yes)
                     {
-                        frontWorkingForm.Ini();
-                        frontWorkingForm.ShowDefaultImage();
-              
+                        #region 界面初始化
+                        frontWorkingForm.BeginInvoke((Action)(() =>
+                        {
+                            frontWorkingForm.Ini();
+                            frontWorkingForm.ShowDefaultImage();
+                        }));
+                        backWorkingForm.BeginInvoke((Action)(() =>
+                        {
+                            backWorkingForm.Ini();
+                            backWorkingForm.ShowDefaultImage();
+                        }));
+                        #endregion
+
                         //plcCheckReadyTimer.Start();//开启板子到位检测
                         allNum = 0;
                         sw.Restart();
                         nowPcb = startWork.Tag as Pcb;
                         string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
                         nowPcb.FrontPcb.savePath = path;
+                        Ftp.MakeDir(Ftp.ftpPath, nowPcb.Id); // Ftp生成当前板子目录
                         if (!Directory.Exists(path))
                         {
                             Directory.CreateDirectory(path);
@@ -1185,11 +1196,11 @@ namespace power_aoi
                         for (int i = 0; i <= 59; i++)
                         {
                             Bitmap fBitmap = new Bitmap(Path.Combine(@"D:\Power-Ftp\25968678723015680", "F" + i + ".jpg"));
-                            //Bitmap bBitmap = new Bitmap(Path.Combine(@"D:\SavedPerCameraImages\4.9\2-Ng", "B" + i + ".jpg"));
+                            Bitmap bBitmap = new Bitmap(Path.Combine(@"D:\Power-Ftp\25968678723015680", "B" + i + ".jpg"));
                             nowPcb.FrontPcb.bitmaps.Enqueue(fBitmap);
-                            //nowPcb.BackPcb.bitmaps.Enqueue(bBitmap);
+                            nowPcb.BackPcb.bitmaps.Enqueue(bBitmap);
                             nowPcb.FrontPcb.savePath = path;
-                            //nowPcb.BackPcb.savePath = path;
+                            nowPcb.BackPcb.savePath = path;
                             MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
                             {
                                 bitmap.Save(pa, ImageFormat.Jpeg);
@@ -1199,14 +1210,14 @@ namespace power_aoi
                                 }
                             }, fBitmap, Path.Combine(Path.Combine(path, "F" + i + ".jpg")));
 
-                            //MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
-                            //{
-                            //    bitmap.Save(pa, ImageFormat.Jpeg);
-                            //    lock (nowPcb.BackPcb)
-                            //    {
-                            //        Aoi.StitchMain(nowPcb.BackPcb, onStitchCallBack);
-                            //    }
-                            //}, bBitmap, Path.Combine(Path.Combine(path, "B" + i + ".jpg")));
+                            MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
+                            {
+                                bitmap.Save(pa, ImageFormat.Jpeg);
+                                lock (nowPcb.BackPcb)
+                                {
+                                    Aoi.StitchMain(nowPcb.BackPcb, onStitchCallBack);
+                                }
+                            }, bBitmap, Path.Combine(Path.Combine(path, "B" + i + ".jpg")));
                         }
                         isIdle = false;
                         //}, nowPcb, frontWorkingForm, backWorkingForm);
@@ -1225,6 +1236,7 @@ namespace power_aoi
                                 isIdle = false;
                                 //重置当前pcb的信息
                                 nowPcb = Pcb.CreatePcb(nowPcb.CarrierLength, nowPcb.CarrierWidth, nowPcb.PcbLength, nowPcb.PcbWidth, nowPcb.SideIndex);
+                                Ftp.MakeDir(Ftp.ftpPath, nowPcb.Id); // Ftp生成当前板子目录
                                 sw.Restart(); // 重置计时
                                 #region 界面初始化
                                 frontWorkingForm.BeginInvoke((Action)(() =>
@@ -1248,8 +1260,9 @@ namespace power_aoi
                                 for (int i = 0; i <= 59; i++)
                                 {
                                     Bitmap fBitmap = new Bitmap(Path.Combine(@"D:\Power-Ftp\25968678723015680", "F" + i + ".jpg"));
-                                    //Bitmap bBitmap = new Bitmap(Path.Combine(@"D:\SavedPerCameraImages\4.9\2-Ng", "B" + i + ".jpg"));
+                                    Bitmap bBitmap = new Bitmap(Path.Combine(@"D:\Power-Ftp\25968678723015680", "B" + i + ".jpg"));
                                     nowPcb.FrontPcb.bitmaps.Enqueue(fBitmap);
+                                    nowPcb.BackPcb.bitmaps.Enqueue(bBitmap);
                                     //nowPcb.BackPcb.savePath = path;
                                     MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
                                     {
@@ -1259,6 +1272,15 @@ namespace power_aoi
                                             Aoi.StitchMain(nowPcb.FrontPcb, onStitchCallBack);
                                         }
                                     }, fBitmap, Path.Combine(Path.Combine(path, "F" + i + ".jpg")));
+
+                                    MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
+                                    {
+                                        bitmap.Save(pa, ImageFormat.Jpeg);
+                                        lock (nowPcb.BackPcb)
+                                        {
+                                            Aoi.StitchMain(nowPcb.BackPcb, onStitchCallBack);
+                                        }
+                                    }, bBitmap, Path.Combine(Path.Combine(path, "B" + i + ".jpg")));
                                 }
                                 break;
                             }
