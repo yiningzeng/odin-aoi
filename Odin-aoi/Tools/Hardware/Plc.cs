@@ -242,6 +242,7 @@ namespace power_aoi.Tools.Hardware
         {
             var plc = CheckConnection();
             if (plc != null) plc.WriteData(dataAddress, dataLength, writeValue, receiveData);
+            Thread.Sleep(10);
         }
 
         public static int ReadData(int dataStartAddress, int dataLength, byte[] receiveData)
