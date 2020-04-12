@@ -724,13 +724,13 @@ namespace power_aoi
         /// <summary>
         /// AI大图检测
         /// </summary>
-        /// <param name="isBack">是否是背面</param>
+        /// <param name="isFront">是否是正面</param>
         /// <param name="bitmapInfo">图片信息</param>
         /// <param name="scaleRect">已经缩放的矩形框在缩放大图的位置</param>
         /// <param name="scale">缩放的尺度</param>
         /// <param name="confidence">置信度</param>
         /// <param name="savePath">图像保存地址</param>
-        public void aiDetect(bool isBack, BitmapInfo bitmapInfo, Rectangle scaleRect, double scale, float confidence, string savePath)
+        public void aiDetect(bool isFront, BitmapInfo bitmapInfo, Rectangle scaleRect, double scale, float confidence, string savePath)
         {
             MySmartThreadPool.InstanceSmall().QueueWorkItem((name, bmp) =>
             {
@@ -746,7 +746,7 @@ namespace power_aoi
                         stream.Read(byteImg, 0, Convert.ToInt32(stream.Length));
 
                         int n = -1;
-                        if (!isBack)
+                        if (isFront)
                         {
                             lock (ALock)
                             {
@@ -768,7 +768,7 @@ namespace power_aoi
                                 if (boxlist.bboxlist[i].h == 0) break;
                                 else
                                 {
-                                    string id = name.Replace(".jpg", "") + "-" + snowflake.nextId().ToString();
+                                    string id = name.Replace(".jpg", "") + "(" + snowflake.nextId().ToString()+")";
                                     bbox_t bbox = boxlist.bboxlist[i];
                                     //uint oldX = bbox.x;
                                     //uint oldY = bbox.y;
@@ -781,7 +781,7 @@ namespace power_aoi
                                         nowPcb.results.Add(new Result()
                                         {
                                             Id = id,
-                                            IsBack = Convert.ToInt32(isBack),
+                                            IsBack = Convert.ToInt32(!isFront),
                                             score = bbox.prob,
                                             PcbId = nowPcb.Id,
                                             Area = "",
@@ -811,7 +811,7 @@ namespace power_aoi
         /// <summary>
         /// AI几等分识别
         /// </summary>
-        /// <param name="isBack">是否是背面</param>
+        /// <param name="isFront">是否是正面</param>
         /// <param name="bitmapInfo">图片信息</param>
         /// <param name="scaleRect">已经缩放的矩形框在缩放大图的位置</param>
         /// <param name="scale">缩放的尺度</param>
@@ -820,7 +820,7 @@ namespace power_aoi
         /// <param name="equalDivision">等分</param>
         /// <param name="overlap">重叠</param>
         /// <param name="saveCropImg">是否保存裁剪的图片</param>
-        public void aiDetectWithCrop(bool isBack, BitmapInfo bitmapInfo, Rectangle scaleRect, double scale, float confidence, string savePath, int equalDivision, int overlap, bool saveCropImg) //有问题，不会处理完
+        public void aiDetectWithCrop(bool isFront, BitmapInfo bitmapInfo, Rectangle scaleRect, double scale, float confidence, string savePath, int equalDivision, int overlap, bool saveCropImg) //有问题，不会处理完
         {
             MySmartThreadPool.InstanceSmall().QueueWorkItem((name, bmp, imgWidth, imgHeight) =>
             {
@@ -844,7 +844,7 @@ namespace power_aoi
                         //dst.Save(Path.Combine(p.savePath, caonima + "-" + i + ".jpg"));
                         for (int j = 0; j < subImageNum; j++) //我是纵向
                         {
-                            string cropImgId = name.Replace(".jpg", "") + "-" + i + "-" + j;
+                            string cropImgId = name.Replace(".jpg", "") + "-" + i + "-" + j+"("+ snowflake.nextId().ToString()+")";
                             if (startPoint.X + partSize.Width > imgWidth)
                             {
                                 partSize = new Size(imgWidth - startPoint.X, partSize.Height);
@@ -869,7 +869,7 @@ namespace power_aoi
                                     {
                                         #region AI检测
                                         bbox_t_container boxlist = new bbox_t_container();
-                                        if (!isBack)
+                                        if (isFront)
                                         {
                                             int n = -1;
                                             lock (ALock)
@@ -932,7 +932,7 @@ namespace power_aoi
                                                         nowPcb.results.Add(new Result()
                                                         {
                                                             Id = cropImgId,
-                                                            IsBack = Convert.ToInt32(isBack),
+                                                            IsBack = Convert.ToInt32(!isFront),
                                                             score = bbox.prob,
                                                             PcbId = nowPcb.Id,
                                                             Area = "crop",
