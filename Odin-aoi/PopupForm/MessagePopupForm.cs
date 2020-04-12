@@ -90,7 +90,7 @@ namespace power_aoi.PopupForm
                     }
                     GC.Collect();
                     Thread.Sleep(1000);
-                    
+
                     AiSdkBack.init(Marshal.StringToHGlobalAnsi(INIHelper.Read("BackAiPars", "configurationFile", Application.StartupPath + "/config.ini").Replace("\\\\", "\\").Replace("\\", "/")),
                              // 特别说明，这里的路径一定要用 '/' 不能用反斜杠
                              // 特别说明，这里的路径一定要用 '/' 不能用反斜杠

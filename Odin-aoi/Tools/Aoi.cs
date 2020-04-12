@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using static power_aoi.Model.OneStitchSidePcb;
 
 namespace power_aoi.Tools
 {
@@ -51,8 +52,8 @@ namespace power_aoi.Tools
             double dr_hu = oneSidePcb.dr_hu;
             double dr_vu = oneSidePcb.dr_vu;
 
-            Bitmap bitmap = oneSidePcb.bitmaps.Dequeue();
-            Emgu.CV.Image<Bgr, Byte> currentFrame = new Emgu.CV.Image<Bgr, Byte>(bitmap);
+            BitmapInfo bitmapInfo = oneSidePcb.bitmaps.Dequeue();
+            Emgu.CV.Image<Bgr, Byte> currentFrame = new Emgu.CV.Image<Bgr, Byte>(bitmapInfo.bitmap);
             Mat imgOld = new Mat();
             CvInvoke.BitwiseAnd(currentFrame, currentFrame, imgOld);
             int edge = 3;
@@ -156,7 +157,7 @@ namespace power_aoi.Tools
             }
             #region 实时更新采集框
 
-            stitchCallBack(false, oneSidePcb, bitmap, new RectangleF((float)(oneSidePcb.roi.Location.X * 0.25),
+            stitchCallBack(false, oneSidePcb, bitmapInfo, new RectangleF((float)(oneSidePcb.roi.Location.X * 0.25),
                     (float)(oneSidePcb.roi.Location.Y * 0.25),
                     (float)(oneSidePcb.roi.Size.Width * 0.25),
                     (float)(oneSidePcb.roi.Size.Height * 0.25)));
@@ -170,22 +171,26 @@ namespace power_aoi.Tools
 
             if (needSave) // 加这里主要是为了优化workingForm.imgBoxWorking最后一个框的显示问题
             {
-                stitchCallBack(true, oneSidePcb, bitmap, new RectangleF());
+                stitchCallBack(true, oneSidePcb, bitmapInfo, new RectangleF());
                 Mat smallmat =new Mat();
                 CvInvoke.Resize(oneSidePcb.dst, smallmat, new Size(Convert.ToInt32(oneSidePcb.dst.Cols * oneSidePcb.scale), Convert.ToInt32(oneSidePcb.dst.Rows * oneSidePcb.scale)));
                 if (oneSidePcb.zTrajectory)
                 {
                     string saveFile = Path.Combine(oneSidePcb.savePath, "front.jpg");
                     smallmat.Save(saveFile);
+                    //oneSidePcb.dst.Save(saveFile + "big.jpg");
                     Ftp.UpLoadFile(saveFile, Ftp.ftpPath + oneSidePcb.pcbId + "/front.jpg");
                 }
                 else
                 {
                     string saveFile = Path.Combine(oneSidePcb.savePath, "back.jpg");
                     smallmat.Save(saveFile);
+                    //oneSidePcb.dst.Save(saveFile + "big.jpg");
                     Ftp.UpLoadFile(saveFile, Ftp.ftpPath + oneSidePcb.pcbId + "/back.jpg");
                 }
-            
+                smallmat.Dispose();
+                oneSidePcb.dst.Dispose();
+
             }
         }
     }
