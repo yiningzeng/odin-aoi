@@ -14,6 +14,11 @@ namespace power_aoi.Model
     /// </summary>
     public class OneStitchSidePcb
     {
+        public class BitmapInfo
+        {
+            public string name { get; set; }
+            public Bitmap bitmap { get; set; }
+        }
         #region AI参数
         public int equalDivision = 1; // #表示检测的图像按照边长等分的数量，=2的话就是4等分
         public int overlap = 50; // #表示等分的时候重叠的区域
@@ -64,7 +69,7 @@ namespace power_aoi.Model
         public double scale = 0.25;
         public bool stitchEnd = false; //拼图结束的标示
         //图片队列
-        public Queue<Bitmap> bitmaps = new Queue<Bitmap>();
+        public Queue<BitmapInfo> bitmaps = new Queue<BitmapInfo>();
         #endregion
     }
 }

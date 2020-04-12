@@ -1,7 +1,9 @@
 ﻿
+using Emgu.CV;
+using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
-
+using System.Drawing;
 using System.Linq;
 
 using System.Windows.Forms;
@@ -24,6 +26,14 @@ namespace power_aoi
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
+
+            //Mat fuck = new Mat(@"D:\Power-Ftp\25969253124981760\front.jpg", Emgu.CV.CvEnum.LoadImageType.AnyColor);
+            //Rectangle rectangle = new Rectangle(10, 10, 100, 100);
+            //Image<Bgr, byte> Sub = new Image<Bgr, byte>(@"D:\Power-Ftp\25969253124981760\front.jpg");
+            ////Image<Gray, byte> CropImage = new Image<Gray, byte>(Sub.Size);
+            //Image<Bgr, byte> fffff = Sub.GetSubRect(rectangle);
+            //fffff.Bytes
+            //fffff.Save(@"C:\aaaaaaa.jpg");
 
             bool Exist;//定义一个bool变量，用来表示是否已经运行
                        //创建Mutex互斥对象

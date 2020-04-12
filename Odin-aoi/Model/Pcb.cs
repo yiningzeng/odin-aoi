@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static power_aoi.Model.OneStitchSidePcb;
 
 namespace power_aoi.Model
 {
@@ -158,7 +159,7 @@ namespace power_aoi.Model
                     roi = new Rectangle(),
                     scale = 0.25,
                     stitchEnd = false,
-                    bitmaps = new Queue<Bitmap>(),
+                    bitmaps = new Queue<BitmapInfo>(),
                 };
 
                 var backX = Xycoordinate.bxcoordinate((int)Math.Ceiling((float)xvalue / Plc.capturePointIntervalXInMM), (int)(Plc.capturePointIntervalXInMM), xdifferencevalue);
@@ -195,7 +196,7 @@ namespace power_aoi.Model
                     roi = new Rectangle(),
                     scale = 0.25,
                     stitchEnd = false,
-                    bitmaps = new Queue<Bitmap>(),
+                    bitmaps = new Queue<BitmapInfo>(),
                 };
 
                 switch (sideIndex)
