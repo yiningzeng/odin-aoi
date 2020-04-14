@@ -102,7 +102,6 @@ namespace power_aoi.Tools.Hardware
             {
                 LogHelper.WriteLog("PLC心跳检测失败", er);
             }
-
         }
 
         private static void DisplayMonitorAlarm()
@@ -188,8 +187,11 @@ namespace power_aoi.Tools.Hardware
             {
                 byte[] writeValue = new byte[2] { (byte)(value / 256), (byte)(value % 256) };
                 //byte[] receiveData = new byte[255];
-                if (PLCController.Instance.IsConnected)
+                var plc = CheckConnection();
+                if (plc != null)
+                {
                     PLCController.Instance.WriteData(registerAddress, 1, writeValue, receiveData);
+                }
             }
             catch (Exception exp)
             {

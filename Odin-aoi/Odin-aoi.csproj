@@ -346,6 +346,7 @@
     <Compile Include="Tools\Hardware\Xycoordinate.cs" />
     <Compile Include="Tools\INIHelper.cs" />
     <Compile Include="Tools\LimitPropsContractResolver.cs" />
+    <Compile Include="Tools\LoadBalance.cs" />
     <Compile Include="Tools\LogHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

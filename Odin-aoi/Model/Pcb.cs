@@ -127,14 +127,19 @@ namespace power_aoi.Model
                 byte[] receiveData = new byte[255];
                 var frontX = Xycoordinate.axcoordinate((int)Math.Ceiling((float)xvalue / Plc.capturePointIntervalXInMM), (int)(Plc.capturePointIntervalXInMM), xdifferencevalue);
                 var frontY = Xycoordinate.aycoordinate((int)Math.Ceiling((float)yvalue / Plc.capturePointIntervalYInMM), (int)(Plc.capturePointIntervalYInMM), ydifferencevalue);
-                bool frontDetectMultiScale = INIHelper.ReadBoolean("FrontAiPars", "detectMultiScale", false, Application.StartupPath + "/config.ini");
+                
+                bool detectMultiScale = INIHelper.ReadBoolean("AiBaseConfig", "detectMultiScale", false, Application.StartupPath + "/config.ini");
+                int overlap = INIHelper.ReadInteger("AiBaseConfig", "overlap", 50, Application.StartupPath + "/config.ini");
+                bool saveCropImg = INIHelper.ReadBoolean("AiBaseConfig", "saveCropImg", false, Application.StartupPath + "/config.ini");
+                int equalDivision = INIHelper.ReadInteger("AiBaseConfig", "equalDivision", 1, Application.StartupPath + "/config.ini");
+                float confidence = float.Parse(INIHelper.Read("AiBaseConfig", "confidence", Application.StartupPath + "/config.ini"));
                 OneStitchSidePcb front = new OneStitchSidePcb()
                 {
-                    overlap = INIHelper.ReadInteger("FrontAiPars", "overlap", 50, Application.StartupPath + "/config.ini"),
-                    saveCropImg = INIHelper.ReadBoolean("FrontAiPars", "saveCropImg", false, Application.StartupPath + "/config.ini"),
-                    equalDivision = INIHelper.ReadInteger("FrontAiPars", "equalDivision", 1, Application.StartupPath + "/config.ini"),
-                    detectMultiScale = frontDetectMultiScale,
-                    confidence = float.Parse(INIHelper.Read("FrontAiPars", "confidence", Application.StartupPath + "/config.ini")),
+                    overlap = overlap,
+                    saveCropImg = saveCropImg,
+                    equalDivision = equalDivision,
+                    detectMultiScale = detectMultiScale,
+                    confidence = confidence,
 
                     addressX = 3000,
                     addressY = 3200,
@@ -151,7 +156,7 @@ namespace power_aoi.Model
 
                     allRows = frontX.Count,
                     allCols = frontY.Count,
-                    allNum = frontDetectMultiScale ? frontX.Count * frontY.Count * 2 : frontX.Count * frontY.Count, // 这里多尺度是需要改变总数*2的
+                    allNum = detectMultiScale ? frontX.Count * frontY.Count * 2 : frontX.Count * frontY.Count, // 这里多尺度是需要改变总数*2的
                     currentRow = 0,
                     currentCol = 0,
                     zTrajectory = true,
@@ -164,14 +169,13 @@ namespace power_aoi.Model
 
                 var backX = Xycoordinate.bxcoordinate((int)Math.Ceiling((float)xvalue / Plc.capturePointIntervalXInMM), (int)(Plc.capturePointIntervalXInMM), xdifferencevalue);
                 var backY = Xycoordinate.bycoordinate((int)Math.Ceiling((float)yvalue / Plc.capturePointIntervalYInMM), (int)(Plc.capturePointIntervalYInMM), ydifferencevalue);
-                bool backDetectMultiScale = INIHelper.ReadBoolean("BackAiPars", "detectMultiScale", false, Application.StartupPath + "/config.ini");
                 OneStitchSidePcb back = new OneStitchSidePcb()
                 {
-                    overlap = INIHelper.ReadInteger("BackAiPars", "overlap", 50, Application.StartupPath + "/config.ini"),
-                    saveCropImg = INIHelper.ReadBoolean("BackAiPars", "saveCropImg", false, Application.StartupPath + "/config.ini"),
-                    equalDivision = INIHelper.ReadInteger("BackAiPars", "equalDivision", 1, Application.StartupPath + "/config.ini"),
-                    detectMultiScale = backDetectMultiScale,
-                    confidence = float.Parse(INIHelper.Read("BackAiPars", "confidence", Application.StartupPath + "/config.ini")),
+                    overlap = overlap,
+                    saveCropImg = saveCropImg,
+                    equalDivision = equalDivision,
+                    detectMultiScale = detectMultiScale,
+                    confidence = confidence,
 
                     addressX = 3400,
                     addressY = 3600,
@@ -188,7 +192,7 @@ namespace power_aoi.Model
 
                     allRows = backX.Count,
                     allCols = backY.Count,
-                    allNum = backDetectMultiScale ? backX.Count * backY.Count * 2 : backX.Count * backY.Count,
+                    allNum = detectMultiScale ? backX.Count * backY.Count * 2 : backX.Count * backY.Count,
                     currentRow = 0,
                     currentCol = 0,
                     zTrajectory = false,
