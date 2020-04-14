@@ -287,8 +287,10 @@ namespace power_aoi.Tools.Hardware
         //轨道宽度设置
         public static void SetTrackWidth(double value)
         {
-            //double value = kwidth + Convert.ToDouble(tbWidth.Text) * 1562.5;
-            int registerAddress = 2124;
+            try
+            {
+                //double value = kwidth + Convert.ToDouble(tbWidth.Text) * 1562.5;
+                int registerAddress = 2124;
             int wordBit = 32;
             byte[] receiveData = new byte[255];
             if (wordBit == 32)
@@ -303,8 +305,7 @@ namespace power_aoi.Tools.Hardware
                 if (PLCController.Instance.IsConnected)
                     PLCController.Instance.WriteData(registerAddress, 2, writeValue, receiveData);
             }
-            try
-            {
+
                 int[] registerBitall = { 5 };
                 foreach (int i in registerBitall)
                 {
