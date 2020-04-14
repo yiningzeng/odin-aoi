@@ -368,7 +368,14 @@ namespace power_aoi
                     if (!Directory.Exists(path)) Directory.CreateDirectory(path);
                     MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
                     {
-                        bitmap.Save(pa, ImageFormat.Jpeg);
+                        try
+                        {
+                            bitmap.Save(pa, ImageFormat.Jpeg);
+                        }
+                        catch (Exception er)
+                        {
+                            LogHelper.WriteLog("保存图片出错", er);
+                        }
                         lock (nowPcb.FrontPcb)
                         {
                             Aoi.StitchMain(nowPcb.FrontPcb, onStitchCallBack);
@@ -425,7 +432,14 @@ namespace power_aoi
                     if (!Directory.Exists(path)) Directory.CreateDirectory(path);
                     MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
                     {
-                        bitmap.Save(pa, ImageFormat.Jpeg);
+                        try
+                        {
+                            bitmap.Save(pa, ImageFormat.Jpeg);
+                        }
+                        catch (Exception er)
+                        {
+                            LogHelper.WriteLog("保存图片出错", er);
+                        }
                         lock (nowPcb.BackPcb)
                         {
                             Aoi.StitchMain(nowPcb.BackPcb, onStitchCallBack);
@@ -644,11 +658,12 @@ namespace power_aoi
                     LogHelper.WriteLog("正面拍摄完成,发送出板信息");
                     Plc.BPcbOut();
                 }
-                //this.BeginInvoke((Action)(() =>
-                //{
-                //    plcFrontCaptureStatusTimer.Start();
-                //    plcBackCaptureStatusTimer.Start();
-                //}));
+                this.BeginInvoke((Action)(() =>
+                {
+                    #region 松开
+                    Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5) + 1.1 * 1562.5);
+                    #endregion
+                }));
                 return 999;
             }
             else
@@ -832,10 +847,8 @@ namespace power_aoi
                     Size partSize = new Size(subWidth, subHeight);
                     for (int i = 0; i < subImageNum; i++) // 我是横行
                     {
-                        //先创建一个空白的dst 
-                        Image<Bgr, byte> dst = new Image<Bgr, byte>(Sub.Size);
-                        CvInvoke.cvCopy(Sub, dst.Ptr, IntPtr.Zero);
-                        //dst.Save(Path.Combine(p.savePath, caonima + "-" + i + ".jpg"));
+                        //Image<Bgr, byte> dst = new Image<Bgr, byte>(Sub.Size);
+                        //CvInvoke.cvCopy(Sub, dst.Ptr, IntPtr.Zero);
                         for (int j = 0; j < subImageNum; j++) //我是纵向
                         {
                             string cropImgId = name.Replace(".jpg", "") + "-" + i + "-" + j+"("+ snowflake.nextId().ToString()+")";
@@ -850,7 +863,7 @@ namespace power_aoi
 
                             try
                             {
-                                Image<Bgr, byte> fffff = dst.GetSubRect(new Rectangle(startPoint, partSize));
+                                Image<Bgr, byte> fffff = Sub.GetSubRect(new Rectangle(startPoint, partSize));
                                 
                                 using (MemoryStream stream = new MemoryStream())
                                 {
@@ -931,7 +944,7 @@ namespace power_aoi
                             num++;
                             startPoint = new Point(startPoint.X + subWidth, startPoint.Y);
                         }
-                        dst.Dispose();
+                        //dst.Dispose();
                         startPoint = new Point(0, startPoint.Y + subHeight);
                     }
                     Sub.Dispose();
@@ -959,7 +972,7 @@ namespace power_aoi
         public void aiDone(string savePath)
         {
             Console.WriteLine(allNum);
-            if (allNum == nowPcb.AllPhotoNum) 
+            if (allNum == nowPcb.AllPhotoNum)
             {
                 this.BeginInvoke((Action)(() =>
                 {
@@ -1004,6 +1017,9 @@ namespace power_aoi
                     }
                     finally
                     {
+                        #region 松开
+                        Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5) + 1.1 * 1562.5);
+                        #endregion
                         isIdle = true;
                         frontCameraNum = 0;
                         backCameraNum = 0;
@@ -1160,6 +1176,11 @@ namespace power_aoi
                     #region 手动出板
                     DialogResult dr = MessageBox.Show("你确定要手动出板么？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
                     if (dr == DialogResult.OK) Plc.PcbOut();
+                    #endregion
+                    break;
+                case "手动松开":
+                    #region 松开
+                    Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5) + 1.1 * 1562.5);
                     #endregion
                     break;
                 case "开发测试按钮":
@@ -1358,11 +1379,11 @@ namespace power_aoi
             #endregion
 
             #region 初始化PLC
-            //Plc.Ini();
+            Plc.Ini();
             #endregion
 
             #region 初始化相机
-            //Camerasinitialization();
+            Camerasinitialization();
             #endregion
         }
 

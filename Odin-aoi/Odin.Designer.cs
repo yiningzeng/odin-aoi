@@ -63,8 +63,9 @@
             this.imageListToolBar.Images.SetKeyName(0, "采集");
             this.imageListToolBar.Images.SetKeyName(1, "编程");
             this.imageListToolBar.Images.SetKeyName(2, "手动出板");
-            this.imageListToolBar.Images.SetKeyName(3, "开发测试按钮");
-            this.imageListToolBar.Images.SetKeyName(4, "模拟一块板子");
+            this.imageListToolBar.Images.SetKeyName(3, "手动松开");
+            this.imageListToolBar.Images.SetKeyName(4, "开发测试按钮");
+            this.imageListToolBar.Images.SetKeyName(5, "模拟一块板子");
             // 
             // dockPanel1
             // 
