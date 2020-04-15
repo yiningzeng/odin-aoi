@@ -755,7 +755,6 @@ namespace power_aoi
             {
                 try
                 {
-                    Snowflake snowflake = new Snowflake(2);
                     bbox_t_container boxlist = new bbox_t_container();
                     using (MemoryStream stream = new MemoryStream())
                     {
@@ -769,39 +768,7 @@ namespace power_aoi
                         if (n == -1) LogHelper.WriteLog("AI调用失败");
                         else
                         {
-                            if (boxlist.bboxlist.Length > 0)
-                            {
-                                for (int i = 0; i < boxlist.bboxlist.Length; i++)
-                                {
-                                    if (boxlist.bboxlist[i].h == 0) break;
-                                    else
-                                    {
-                                        string id = name.Replace(".jpg", "") + "(" + snowflake.nextId().ToString() + ")";
-                                        bbox_t bbox = boxlist.bboxlist[i];
-                                        //uint oldX = bbox.x;
-                                        //uint oldY = bbox.y;
-                                        bbox.x = (uint)(bbox.x * scale) + (uint)scaleRect.X;
-                                        bbox.y = (uint)(bbox.y * scale) + (uint)scaleRect.Y;
-                                        bbox.w = (uint)(bbox.w * scale);
-                                        bbox.h = (uint)(bbox.h * scale);
-                                        lock (nowPcb.results)
-                                        {
-                                            nowPcb.results.Add(new Result()
-                                            {
-                                                Id = id,
-                                                IsBack = Convert.ToInt32(!isFront),
-                                                score = bbox.prob,
-                                                PcbId = nowPcb.Id,
-                                                Area = "",
-                                                Region = bbox.x + "," + bbox.y + "," + bbox.w + "," + bbox.h,
-                                                NgType = ai.names[(int)bbox.obj_id],
-                                                PartImagePath = id + ".jpg",
-                                                CreateTime = DateTime.Now
-                                            });
-                                        }
-                                    }
-                                }
-                            }
+                            resultJoin(name, isFront, scale, scaleRect, boxlist, ai.names, new Point(0, 0));
                         }
                     }
                 }
@@ -851,7 +818,7 @@ namespace power_aoi
                         //CvInvoke.cvCopy(Sub, dst.Ptr, IntPtr.Zero);
                         for (int j = 0; j < subImageNum; j++) //我是纵向
                         {
-                            string cropImgId = name.Replace(".jpg", "") + "-" + i + "-" + j+"("+ snowflake.nextId().ToString()+")";
+                            string cropImgId = name.Replace(".jpg", "") + "-" + i + "-" + j;// +"("+ snowflake.nextId().ToString()+")";
                             if (startPoint.X + partSize.Width > imgWidth)
                             {
                                 partSize = new Size(imgWidth - startPoint.X, partSize.Height);
@@ -881,44 +848,7 @@ namespace power_aoi
                                         if (n == -1) LogHelper.WriteLog("AI调用失败");
                                         else
                                         {
-                                            if (boxlist.bboxlist.Length > 0)
-                                            {
-
-                                                for (int f = 0; f < boxlist.bboxlist.Length; f++)
-                                                {
-                                                    if (boxlist.bboxlist[f].h == 0)
-                                                    {
-                                                        break;
-                                                    }
-                                                    else
-                                                    {
-                                                        bbox_t bbox = boxlist.bboxlist[f];
-                                                        //bbox.x = (uint)((bbox.x + startPoint.X) * scale) + (uint)scaleRect.X;
-                                                        //bbox.y = (uint)((bbox.y + startPoint.Y) * scale) + (uint)scaleRect.Y;
-                                                        //bbox.w = (uint)(bbox.w * scale);
-                                                        //bbox.h = (uint)(bbox.h * scale);
-                                                        bbox.x = (uint)((bbox.x + startPoint.X) * scale) + (uint)scaleRect.X; // + (uint)scaleRect.X;
-                                                        bbox.y = (uint)((bbox.y + startPoint.Y) * scale) + (uint)scaleRect.Y; // + (uint)scaleRect.Y;
-                                                        bbox.w = (uint)(bbox.w * scale);
-                                                        bbox.h = (uint)(bbox.h * scale);
-                                                        lock (nowPcb.results)
-                                                        {
-                                                            nowPcb.results.Add(new Result()
-                                                            {
-                                                                Id = cropImgId,
-                                                                IsBack = Convert.ToInt32(!isFront),
-                                                                score = bbox.prob,
-                                                                PcbId = nowPcb.Id,
-                                                                Area = "crop",
-                                                                Region = bbox.x + "," + bbox.y + "," + bbox.w + "," + bbox.h,
-                                                                NgType = ai.names[(int)bbox.obj_id],
-                                                                PartImagePath = cropImgId,
-                                                                CreateTime = DateTime.Now
-                                                            });
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                            resultJoin(cropImgId, isFront, scale, scaleRect, boxlist, ai.names, startPoint);
                                         }
                                         #endregion
                                     }
@@ -963,6 +893,43 @@ namespace power_aoi
                 if (num >= subImageNum * subImageNum) return 1;
                 return 0;
             }, bitmapInfo.name, (Bitmap)bitmapInfo.bitmap.Clone(), bitmapInfo.bitmap.Width, bitmapInfo.bitmap.Height);
+        }
+
+        public void resultJoin(string imgName, bool isFront, double scale, Rectangle scaleRect, bbox_t_container boxlist, List<string> names, Point startPoint)
+        {
+            Snowflake snowflake = new Snowflake(2);
+            if (boxlist.bboxlist.Length > 0)
+            {
+                for (int i = 0; i < boxlist.bboxlist.Length; i++)
+                {
+                    if (boxlist.bboxlist[i].h == 0) break;
+                    else
+                    {
+                        string id = imgName.Replace(".jpg", "") + "(" + snowflake.nextId().ToString() + ")";
+                        bbox_t bbox = boxlist.bboxlist[i];
+                        bbox.x = (uint)((bbox.x + startPoint.X) * scale) + (uint)scaleRect.X; // + (uint)scaleRect.X;
+                        bbox.y = (uint)((bbox.y + startPoint.Y) * scale) + (uint)scaleRect.Y; // + (uint)scaleRect.Y;
+                        bbox.w = (uint)(bbox.w * scale);
+                        bbox.h = (uint)(bbox.h * scale);
+                        Result result = new Result()
+                        {
+                            Id = id,
+                            IsBack = Convert.ToInt32(!isFront),
+                            score = bbox.prob,
+                            PcbId = nowPcb.Id,
+                            Area = "",
+                            Region = bbox.x + "," + bbox.y + "," + bbox.w + "," + bbox.h,
+                            NgType = names[(int)bbox.obj_id],
+                            PartImagePath = id + ".jpg",
+                            CreateTime = DateTime.Now,
+                        };
+                        lock (nowPcb.results)
+                        {
+                            nowPcb.results.Add(result);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>

@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace power_aoi.Model
 {
@@ -44,7 +39,7 @@ namespace power_aoi.Model
         [StringLength(50)]
         [Description("范围 坐标")]
         public string Region { get; set; }
-        
+
         [Column(name: "ng_type", TypeName = "varchar")]
         [StringLength(100)]
         [Description("Ng种类")]
