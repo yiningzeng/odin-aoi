@@ -75,6 +75,7 @@ namespace power_aoi.Tools.Hardware
             plcTimerCheck.Interval = 200;
             plcTimerCheck.Elapsed += PlcTimerCheck_Elapsed;
             plcTimerCheck.Start();
+            SetSpeed();
             RestValue();
         }
 
@@ -102,7 +103,6 @@ namespace power_aoi.Tools.Hardware
             {
                 LogHelper.WriteLog("PLC心跳检测失败", er);
             }
-
         }
 
         private static void DisplayMonitorAlarm()
@@ -188,18 +188,21 @@ namespace power_aoi.Tools.Hardware
             {
                 byte[] writeValue = new byte[2] { (byte)(value / 256), (byte)(value % 256) };
                 //byte[] receiveData = new byte[255];
-                if (PLCController.Instance.IsConnected)
+                var plc = CheckConnection();
+                if (plc != null)
+                {
                     PLCController.Instance.WriteData(registerAddress, 1, writeValue, receiveData);
+                }
             }
             catch (Exception exp)
             {
 
             }
         }
-
+        // 软重置
         private static void RestValue()
         {
-            int[] registerBitall = { 10 };
+            int[] registerBitall = { 9,10 };
             foreach (int i in registerBitall)
             {
                 int registerAddress = 2004;
@@ -237,7 +240,55 @@ namespace power_aoi.Tools.Hardware
             }
         }
 
-       
+        /// <summary>
+        /// 设置速度
+        /// </summary>
+        private static void SetSpeed()
+        {
+            int[] address = new int[] { 2050, 2052, 2054 };
+            for (int i = 0; i < address.Length; i++)
+            {
+                double value;
+                if(i==0||i==1) value = INIHelper.ReadInteger("Runspeed", address[i].ToString(), 50000, Application.StartupPath + "/config.ini");
+                else value = INIHelper.ReadInteger("Runspeed", address[i].ToString(), 20000, Application.StartupPath + "/config.ini");
+                int registerAddress = address[i];
+                byte[] receiveData = new byte[255];
+                if (value > 0xfffffff)
+                {
+                    MessageBox.Show("PLC设置速度超出范围");
+                    return;
+                }
+                byte[] writeValue = new byte[4];
+                writeValue = DoubleToByte(value);
+                var plc = CheckConnection();
+                if (plc != null)
+                {
+                    PLCController.Instance.WriteData(registerAddress, 2, writeValue, receiveData);
+                }
+            }
+            address = new int[] { 2056 };
+            for (int i = 0; i < address.Length; i++)
+            {
+                int value = INIHelper.ReadInteger("Runspeed", address[i].ToString(), 30000, Application.StartupPath + "/config.ini");
+                int registerAddress = address[i];
+                byte[] receiveData = new byte[255];
+                if (value > 0xffff)
+                {
+                    MessageBox.Show("PLC设置速度超出范围");
+                    return;
+                }
+                byte[] writeValue = new byte[2];
+                writeValue[0] = (byte)(value / Math.Pow(256, 1));
+                writeValue[1] = (byte)((value / Math.Pow(256, 0)) % 256);
+                var plc = CheckConnection();
+                if (plc != null)
+                {
+                    PLCController.Instance.WriteData(registerAddress, 1, writeValue, receiveData);
+                }
+            }
+        }
+
+
         public static void WriteData(int dataAddress, int dataLength, byte[] writeValue, byte[] receiveData)
         {
             var plc = CheckConnection();
@@ -287,8 +338,10 @@ namespace power_aoi.Tools.Hardware
         //轨道宽度设置
         public static void SetTrackWidth(double value)
         {
-            //double value = kwidth + Convert.ToDouble(tbWidth.Text) * 1562.5;
-            int registerAddress = 2124;
+            try
+            {
+                //double value = kwidth + Convert.ToDouble(tbWidth.Text) * 1562.5;
+                int registerAddress = 2124;
             int wordBit = 32;
             byte[] receiveData = new byte[255];
             if (wordBit == 32)
@@ -303,8 +356,7 @@ namespace power_aoi.Tools.Hardware
                 if (PLCController.Instance.IsConnected)
                     PLCController.Instance.WriteData(registerAddress, 2, writeValue, receiveData);
             }
-            try
-            {
+
                 int[] registerBitall = { 5 };
                 foreach (int i in registerBitall)
                 {
