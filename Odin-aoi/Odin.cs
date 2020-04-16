@@ -1002,7 +1002,7 @@ namespace power_aoi
         {
             try
             {
-                Plc.PcbOut();
+                if(Plc.CheckPcbReady())Plc.PcbOut();
                 #region 先关闭相机
                 this.Stop();
                 CloseTheImageProvider();
