@@ -75,6 +75,7 @@ namespace power_aoi.Tools.Hardware
             plcTimerCheck.Interval = 200;
             plcTimerCheck.Elapsed += PlcTimerCheck_Elapsed;
             plcTimerCheck.Start();
+            if (CheckPcbReady()) PcbOut(); // 当有板子的时候，发送出板信息
             SetSpeed();
             RestValue();
         }
