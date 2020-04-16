@@ -133,6 +133,7 @@ namespace power_aoi.Model
                 bool saveCropImg = INIHelper.ReadBoolean("AiBaseConfig", "saveCropImg", false, Application.StartupPath + "/config.ini");
                 int equalDivision = INIHelper.ReadInteger("AiBaseConfig", "equalDivision", 1, Application.StartupPath + "/config.ini");
                 float confidence = float.Parse(INIHelper.Read("AiBaseConfig", "confidence", Application.StartupPath + "/config.ini"));
+                float scale = float.Parse(INIHelper.Read("BaseConfig", "imgScale", Application.StartupPath + "/config.ini"));
                 OneStitchSidePcb front = new OneStitchSidePcb()
                 {
                     overlap = overlap,
@@ -162,7 +163,7 @@ namespace power_aoi.Model
                     zTrajectory = true,
                     dst = null,
                     roi = new Rectangle(),
-                    scale = 0.25,
+                    scale = scale,
                     stitchEnd = false,
                     bitmaps = new Queue<BitmapInfo>(),
                 };
@@ -198,7 +199,7 @@ namespace power_aoi.Model
                     zTrajectory = false,
                     dst = null,
                     roi = new Rectangle(),
-                    scale = 0.25,
+                    scale = scale,
                     stitchEnd = false,
                     bitmaps = new Queue<BitmapInfo>(),
                 };
