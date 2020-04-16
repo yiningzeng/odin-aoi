@@ -655,7 +655,7 @@ namespace power_aoi
                         backWorkingForm.imgBoxWorking.Text += "拍摄完成，已发送出板信息";
                         backWorkingForm.imgBoxWorking.SelectionRegion = new RectangleF();
                     }));
-                    LogHelper.WriteLog("正面拍摄完成,发送出板信息");
+                    LogHelper.WriteLog("反面拍摄完成,发送出板信息");
                     Plc.BPcbOut();
                 }
                 this.BeginInvoke((Action)(() =>
@@ -951,7 +951,6 @@ namespace power_aoi
                         Console.WriteLine("执行总共使用了, total :" + times + "s 秒");
 
                         MySmartThreadPool.InstanceSmall().WaitForIdle();
-                        MySmartThreadPool.Instance().WaitForIdle();
                         Console.WriteLine("InstanceSmall: " + MySmartThreadPool.InstanceSmall().InUseThreads);
                         Console.WriteLine("Instance: " + MySmartThreadPool.Instance().InUseThreads);
                         //这里可以直接发送了！！！！！！
