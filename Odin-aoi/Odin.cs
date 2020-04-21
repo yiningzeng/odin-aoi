@@ -1,4 +1,4 @@
-﻿using Emgu.CV;
+using Emgu.CV;
 using Emgu.CV.Structure;
 using Tools;
 using power_aoi.DockerPanelOdin;
@@ -109,6 +109,7 @@ namespace power_aoi
                 button.Location = new Point(7, 7 + i * (15 + 35));
                 button.Click += Button_Click;
                 button.Name = imageListToolBar.Images.Keys[i].ToString();
+                if (button.Name.Contains("(debug)")) button.Visible = false;
                 toolTip.SetToolTip(button, button.Name);
                 panelToolBar.Controls.Add(button);
             }
@@ -121,6 +122,7 @@ namespace power_aoi
             tsmMin.Click += TsmMin_Click;
             tsmSquare.Click += TsmSquare_Click;
             #endregion
+            dockPanel1.AllowEndUserDocking = false; // 锁定整个布局
 
         }
 
@@ -1149,7 +1151,11 @@ namespace power_aoi
                     Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5) + 1.1 * 1562.5);
                     #endregion
                     break;
-                case "开发测试按钮":
+                case "设备复位停止工作":
+                    DialogResult drr = MessageBox.Show("你确定要设备复位停止工作？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                    if (drr == DialogResult.OK) Plc.Ini();
+                    break;
+                case "开发测试按钮(debug)":
                     #region 开发测试，随意添加任何代码来测试
                     //Ftp.MakeDir(Ftp.ftpPath, "asdsdsd");
                     //Ftp.UpLoadFile(@"D:\AoiAssets\2020-04-09\25965986241528832\Back.jpg", Ftp.ftpPath + "asdsdsd/Back.jpg");

@@ -1,4 +1,4 @@
-﻿namespace power_aoi
+namespace power_aoi
 {
     partial class Odin
     {
@@ -64,8 +64,9 @@
             this.imageListToolBar.Images.SetKeyName(1, "编程");
             this.imageListToolBar.Images.SetKeyName(2, "手动出板");
             this.imageListToolBar.Images.SetKeyName(3, "手动松开");
-            this.imageListToolBar.Images.SetKeyName(4, "开发测试按钮");
-            this.imageListToolBar.Images.SetKeyName(5, "模拟一块板子");
+            this.imageListToolBar.Images.SetKeyName(4, "设备复位停止工作");
+            this.imageListToolBar.Images.SetKeyName(5, "开发测试按钮(debug)");
+            this.imageListToolBar.Images.SetKeyName(6, "模拟一块板子(debug)");
             // 
             // dockPanel1
             // 
