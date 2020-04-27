@@ -365,7 +365,7 @@ namespace power_aoi
                     // 
                     m_imageProvider.ReleaseImage();
                     /* The buffer can be used for the next image grabs. */
-                    nowPcb.FrontPcb.bitmaps.Enqueue(new BitmapInfo() { name = "F" + frontCameraNum + ".jpg", bitmap = m_bitmap });
+                    nowPcb.FrontPcb.bitmaps.Enqueue(new BitmapInfo() { name = "F" + frontCameraNum + ".jpg", bitmap = (Bitmap) m_bitmap.Clone() });
                     string path = Path.Combine(nowPcb.FrontPcb.savePath, "camera");
                     if (!Directory.Exists(path)) Directory.CreateDirectory(path);
                     MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
@@ -377,6 +377,10 @@ namespace power_aoi
                         catch (Exception er)
                         {
                             LogHelper.WriteLog("保存图片出错", er);
+                        }
+                        finally
+                        {
+                            bitmap.Dispose();
                         }
                         lock (nowPcb.FrontPcb)
                         {
