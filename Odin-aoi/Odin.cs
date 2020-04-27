@@ -611,6 +611,7 @@ namespace power_aoi
                                 //Console.WriteLine("持续检测单行拍摄是否完成");
                             }
                         }
+                        Thread.Sleep(20);
                     }
                 }
             }
