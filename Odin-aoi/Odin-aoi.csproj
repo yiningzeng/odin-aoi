@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\EmguCV.3.1.0.1\build\EmguCV.props" Condition="Exists('..\packages\EmguCV.3.1.0.1\build\EmguCV.props')" />
   <Import Project="..\packages\EntityFramework.6.4.0\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.props')" />
@@ -249,6 +249,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DockerPanelOdin\ToolBarForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DockerPanelOdin\ToolBarForm.Designer.cs">
+      <DependentUpon>ToolBarForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="DockerPanelOdin\BackWorkingForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -261,11 +267,11 @@
     <Compile Include="DockerPanelOdin\SourceForm.Designer.cs">
       <DependentUpon>SourceForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DockerPanelOdin\ToolBarForm.cs">
+    <Compile Include="DockerPanelOdin\AttributeForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DockerPanelOdin\ToolBarForm.Designer.cs">
-      <DependentUpon>ToolBarForm.cs</DependentUpon>
+    <Compile Include="DockerPanelOdin\AttributeForm.Designer.cs">
+      <DependentUpon>AttributeForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DockerPanelOdin\FrontWorkingForm.cs">
       <SubType>Form</SubType>
@@ -373,14 +379,17 @@
     <Compile Include="UserControls\PropertyGrid.cs">
       <SubType>Component</SubType>
     </Compile>
+    <EmbeddedResource Include="DockerPanelOdin\ToolBarForm.resx">
+      <DependentUpon>ToolBarForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DockerPanelOdin\BackWorkingForm.resx">
       <DependentUpon>BackWorkingForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DockerPanelOdin\SourceForm.resx">
       <DependentUpon>SourceForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DockerPanelOdin\ToolBarForm.resx">
-      <DependentUpon>ToolBarForm.cs</DependentUpon>
+    <EmbeddedResource Include="DockerPanelOdin\AttributeForm.resx">
+      <DependentUpon>AttributeForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DockerPanelOdin\FrontWorkingForm.resx">
       <DependentUpon>FrontWorkingForm.cs</DependentUpon>

@@ -28,26 +28,68 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.propertyGrid1 = new power_aoi.UserControls.PropertyGrid();
+            this.menuStripControl = new power_aoi.UserControls.CustomMenuStripControl();
+            this.设置ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmClose = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmSquare = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmMin = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStripControl.SuspendLayout();
             this.SuspendLayout();
             // 
-            // propertyGrid1
+            // menuStripControl
             // 
-            this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
-            this.propertyGrid1.Name = "propertyGrid1";
-            this.propertyGrid1.Size = new System.Drawing.Size(147, 673);
-            this.propertyGrid1.TabIndex = 2;
+            this.menuStripControl.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.menuStripControl.EndColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.menuStripControl.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.设置ToolStripMenuItem1,
+            this.tsmClose,
+            this.tsmSquare,
+            this.tsmMin});
+            this.menuStripControl.Location = new System.Drawing.Point(0, 0);
+            this.menuStripControl.Name = "menuStripControl";
+            this.menuStripControl.Size = new System.Drawing.Size(1140, 25);
+            this.menuStripControl.StartColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.menuStripControl.TabIndex = 7;
+            this.menuStripControl.Text = " ";
+            // 
+            // 设置ToolStripMenuItem1
+            // 
+            this.设置ToolStripMenuItem1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.设置ToolStripMenuItem1.ForeColor = System.Drawing.Color.White;
+            this.设置ToolStripMenuItem1.Name = "设置ToolStripMenuItem1";
+            this.设置ToolStripMenuItem1.Size = new System.Drawing.Size(44, 21);
+            this.设置ToolStripMenuItem1.Text = "设置";
+            // 
+            // tsmClose
+            // 
+            this.tsmClose.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsmClose.Image = global::Odin_aoi.Properties.Resources.close_no_square;
+            this.tsmClose.Name = "tsmClose";
+            this.tsmClose.Size = new System.Drawing.Size(28, 21);
+            // 
+            // tsmSquare
+            // 
+            this.tsmSquare.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsmSquare.Image = global::Odin_aoi.Properties.Resources.square;
+            this.tsmSquare.Name = "tsmSquare";
+            this.tsmSquare.Size = new System.Drawing.Size(28, 21);
+            // 
+            // tsmMin
+            // 
+            this.tsmMin.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsmMin.Image = global::Odin_aoi.Properties.Resources.min;
+            this.tsmMin.Name = "tsmMin";
+            this.tsmMin.Size = new System.Drawing.Size(28, 21);
             // 
             // ToolBarForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(55)))));
-            this.ClientSize = new System.Drawing.Size(147, 673);
+            this.ClientSize = new System.Drawing.Size(1140, 32);
             this.CloseButton = false;
             this.CloseButtonVisible = false;
-            this.Controls.Add(this.propertyGrid1);
+            this.Controls.Add(this.menuStripControl);
             this.DockAreas = ((WeifenLuo.WinFormsUI.Docking.DockAreas)((((WeifenLuo.WinFormsUI.Docking.DockAreas.Float | WeifenLuo.WinFormsUI.Docking.DockAreas.DockRight) 
             | WeifenLuo.WinFormsUI.Docking.DockAreas.DockTop) 
             | WeifenLuo.WinFormsUI.Docking.DockAreas.DockBottom)));
@@ -61,11 +103,19 @@
             this.ShowIcon = false;
             this.TabText = "工具箱";
             this.Text = "工具箱";
+            this.menuStripControl.ResumeLayout(false);
+            this.menuStripControl.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
-        public UserControls.PropertyGrid propertyGrid1;
+
+        public UserControls.CustomMenuStripControl menuStripControl;
+        public System.Windows.Forms.ToolStripMenuItem 设置ToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem tsmClose;
+        private System.Windows.Forms.ToolStripMenuItem tsmSquare;
+        private System.Windows.Forms.ToolStripMenuItem tsmMin;
     }
 }

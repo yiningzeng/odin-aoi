@@ -75,19 +75,19 @@
             this.lbTitle.AutoSize = true;
             this.lbTitle.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lbTitle.ForeColor = System.Drawing.Color.White;
-            this.lbTitle.Location = new System.Drawing.Point(3, 3);
+            this.lbTitle.Location = new System.Drawing.Point(3, 6);
             this.lbTitle.Name = "lbTitle";
             this.lbTitle.Size = new System.Drawing.Size(0, 16);
             this.lbTitle.TabIndex = 0;
             // 
-            // StartWork
+            // BasePopupForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(483, 398);
             this.Controls.Add(this.pMain);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Name = "StartWork";
+            this.Name = "BasePopupForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.pMain.ResumeLayout(false);
             this.pTitle.ResumeLayout(false);

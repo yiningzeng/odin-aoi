@@ -44,9 +44,10 @@ namespace power_aoi
         public RabbitmqConnectCallback onRabbitmqConnectCallback;
 
         private DeserializeDockContent m_deserializeDockContent;
-        ToolBarForm toolBarForm;
+        AttributeForm attributeForm;
         FrontWorkingForm frontWorkingForm;
         BackWorkingForm backWorkingForm;
+        ToolBarForm toolBarForm;
 
         public System.Timers.Timer plcCheckReadyTimer = new System.Timers.Timer(); // plc监听板子到位信息
 
@@ -109,13 +110,17 @@ namespace power_aoi
                 button.Location = new Point(7, 7 + i * (15 + 35));
                 button.Click += Button_Click;
                 button.Name = imageListToolBar.Images.Keys[i].ToString();
+                #if DEBUG
+                Console.WriteLine("DEBUG:11111111111");
+                #else
                 if (button.Name.Contains("(debug)")) button.Visible = false;
+                #endif
                 toolTip.SetToolTip(button, button.Name);
                 panelToolBar.Controls.Add(button);
             }
             #endregion
             #region 初始化各页面窗体实例
-            toolBarForm.IniForm(this, frontWorkingForm);
+            attributeForm.IniForm(this, frontWorkingForm);
             this.SizeChanged += Odin_SizeChanged;
             menuStripControl.MouseDown += MenuStripControl_MouseDown;
             tsmClose.Click += TsmClose_Click;
@@ -123,7 +128,29 @@ namespace power_aoi
             tsmSquare.Click += TsmSquare_Click;
             #endregion
             dockPanel1.AllowEndUserDocking = false; // 锁定整个布局
+            dockPanel1.ActiveContentChanged += DockPanel1_ActiveContentChanged;
+            //dockPanel1.ActivePaneChanged += DockPanel1_ActivePaneChanged;
+            //frontWorkingForm.Activated += FrontWorkingForm_Activated;
+        }
 
+        private void DockPanel1_ActiveContentChanged(object sender, EventArgs e)
+        {
+            if (dockPanel1.ActiveContent == null) return;
+            if (nowPcb == null) return;
+            switch (dockPanel1.ActiveContent.DockHandler.TabText)
+            {
+                case "工具箱":
+                    Console.WriteLine("toolbarform");
+                    break;
+                case "正面":
+                    Console.WriteLine("frontform");
+                    attributeForm.ShowConfig(nowPcb.FrontPcb);
+                    break;
+                case "反面":
+                    Console.WriteLine("backform");
+                    attributeForm.ShowConfig(nowPcb.BackPcb);
+                    break;
+            }
         }
 
         #region Initialization
@@ -511,15 +538,15 @@ namespace power_aoi
             }
             else if (persistString == typeof(ToolBarForm).ToString())
             {
-                toolBarForm = new ToolBarForm() { TabText = "工具箱", CloseButton = false, CloseButtonVisible = false };
-                return toolBarForm;
+                attributeForm = new AttributeForm() { TabText = "属性", CloseButton = false, CloseButtonVisible = false };
+                return attributeForm;
             }
             else return null;
         }
         private void CreateStandardControls()
         {
             frontWorkingForm = new FrontWorkingForm() { TabText = "正面", CloseButton = false, CloseButtonVisible = false };
-            toolBarForm = new ToolBarForm() { TabText = "工具箱", CloseButton = false, CloseButtonVisible = false };
+            attributeForm = new AttributeForm() { TabText = "属性", CloseButton = false, CloseButtonVisible = false };
             backWorkingForm = new BackWorkingForm() { TabText = "反面", CloseButton = false, CloseButtonVisible = false };
         }
         #endregion
@@ -1398,7 +1425,7 @@ namespace power_aoi
         /// <param name="e"></param>
         private void IniFormToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            toolBarForm.DockPanel = null;
+            attributeForm.DockPanel = null;
             frontWorkingForm.DockPanel = null;
             backWorkingForm.DockPanel = null;
             //new ToolBarForm() { TabText = "我是项目", CloseButton = true, CloseButtonVisible = true }.Show(this.dockPanel1, DockState.Document);

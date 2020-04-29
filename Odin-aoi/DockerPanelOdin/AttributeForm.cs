@@ -12,24 +12,24 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace power_aoi.DockerPanelOdin
 {
-    public partial class ToolBarForm : DockContent
+    public partial class AttributeForm : DockContent
     {
         Odin odin;
         FrontWorkingForm workingFrom;
-        public ToolBarForm()
+        public AttributeForm()
         {
             InitializeComponent();
         }
 
-        //public void ShowConfig(OneStitchSidePcb oneStitchSidePcb)
-        //{
-        //    propertyGrid.SelectedObject = oneStitchSidePcb;
-        //}
+        public void ShowConfig(OneStitchSidePcb oneStitchSidePcb)
+        {
+            propertyGrid.SelectedObject = oneStitchSidePcb;
+        }
 
-        //public OneStitchSidePcb GetConfig()
-        //{
-        //    return propertyGrid.SelectedObject as OneStitchSidePcb;
-        //}
+        public OneStitchSidePcb GetConfig()
+        {
+            return propertyGrid.SelectedObject as OneStitchSidePcb;
+        }
 
         public void IniForm(Odin o, FrontWorkingForm w)
         {
