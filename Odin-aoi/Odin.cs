@@ -1094,32 +1094,38 @@ namespace power_aoi
             {
                 case "采集":
                     #region 采集程序运行主
-                    StartWork startWork = new StartWork();
-                    DialogResult dialogResult = startWork.ShowDialog();
-                    if (dialogResult == DialogResult.Yes)
+                    MySmartThreadPool.Instance().QueueWorkItem((p, frontForm, backForm) =>
                     {
-                        isIdle = true;
-                        plcCheckReadyTimer.Start();//开启板子到位检测
-                        allNum = 0;
-                        sw.Restart();
-                        nowPcb = startWork.Tag as Pcb;
-                        #region 重置轨道宽度
-                        Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5));
-                        #endregion
-                        MySmartThreadPool.Instance().QueueWorkItem((p, frontForm, backForm) =>
+                        this.BeginInvoke((Action)(() =>
                         {
-                            frontWorkingForm.BeginInvoke((Action)(() =>
-                            {
-                                frontWorkingForm.Ini();
-                                frontWorkingForm.ShowDefaultImage();
-                            }));
-                            backWorkingForm.BeginInvoke((Action)(() =>
-                            {
-                                backWorkingForm.Ini();
-                                backWorkingForm.ShowDefaultImage();
-                            }));
-                        }, nowPcb, frontWorkingForm, backWorkingForm);
-                    }
+                            attributeForm.DockState = DockState.DockRightAutoHide;
+                            panelEditBar.Visible = false;
+                        }));
+                        frontWorkingForm.BeginInvoke((Action)(() =>
+                        {
+                            frontWorkingForm.Ini();
+                            frontWorkingForm.ShowDefaultImage();
+                        }));
+                        backWorkingForm.BeginInvoke((Action)(() =>
+                        {
+                            backWorkingForm.Ini();
+                            backWorkingForm.ShowDefaultImage();
+                        }));
+
+                        StartWork startWork = new StartWork();
+                        DialogResult dialogResult = startWork.ShowDialog();
+                        if (dialogResult == DialogResult.Yes)
+                        {
+                            isIdle = true;
+                            plcCheckReadyTimer.Start();//开启板子到位检测
+                            allNum = 0;
+                            sw.Restart();
+                            nowPcb = startWork.Tag as Pcb;
+                            #region 重置轨道宽度
+                            Plc.SetTrackWidth(Convert.ToDouble(kwidth + nowPcb.CarrierWidth * 1562.5));
+                            #endregion
+                        }
+                    }, nowPcb, frontWorkingForm, backWorkingForm);
                     #endregion
                     break;
                 case "编程":
@@ -1162,114 +1168,114 @@ namespace power_aoi
                     break;
                 case "开发测试按钮(debug)":
                     #region 开发测试，随意添加任何代码来测试
-                    //Ftp.MakeDir(Ftp.ftpPath, "asdsdsd");
-                    //Ftp.UpLoadFile(@"D:\AoiAssets\2020-04-09\25965986241528832\Back.jpg", Ftp.ftpPath + "asdsdsd/Back.jpg");
-                    //Ftp.UploadDirectory(@"D:\AoiAssets\", "2020-04-10");
-                    startWork = new StartWork();
-                    dialogResult = startWork.ShowDialog();
-                    if (dialogResult == DialogResult.Yes)
-                    {
-                        #region 界面初始化
-                        frontWorkingForm.BeginInvoke((Action)(() =>
-                        {
-                            frontWorkingForm.Ini();
-                            frontWorkingForm.ShowDefaultImage();
-                        }));
-                        backWorkingForm.BeginInvoke((Action)(() =>
-                        {
-                            backWorkingForm.Ini();
-                            backWorkingForm.ShowDefaultImage();
-                        }));
-                        #endregion
+                    ////Ftp.MakeDir(Ftp.ftpPath, "asdsdsd");
+                    ////Ftp.UpLoadFile(@"D:\AoiAssets\2020-04-09\25965986241528832\Back.jpg", Ftp.ftpPath + "asdsdsd/Back.jpg");
+                    ////Ftp.UploadDirectory(@"D:\AoiAssets\", "2020-04-10");
+                    //startWork = new StartWork();
+                    //dialogResult = startWork.ShowDialog();
+                    //if (dialogResult == DialogResult.Yes)
+                    //{
+                    //    #region 界面初始化
+                    //    frontWorkingForm.BeginInvoke((Action)(() =>
+                    //    {
+                    //        frontWorkingForm.Ini();
+                    //        frontWorkingForm.ShowDefaultImage();
+                    //    }));
+                    //    backWorkingForm.BeginInvoke((Action)(() =>
+                    //    {
+                    //        backWorkingForm.Ini();
+                    //        backWorkingForm.ShowDefaultImage();
+                    //    }));
+                    //    #endregion
 
-                        //plcCheckReadyTimer.Start();//开启板子到位检测
-                        allNum = 0;
-                        sw.Restart();
-                        nowPcb = startWork.Tag as Pcb;
-                        string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
-                        nowPcb.FrontPcb.savePath = path;
-                        Ftp.MakeDir(Ftp.ftpPath, nowPcb.Id); // Ftp生成当前板子目录
-                        if (!Directory.Exists(path))
-                        {
-                            Directory.CreateDirectory(path);
-                        }
-                        //JsonData<Pcb> jsonData = new JsonData<Pcb>();
-                        //jsonData.data = nowPcb;
-                        //jsonData.executionTime = 26;
-                        //jsonData.ngNum = nowPcb.results.Count;
-                        //var jSetting = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                        //string[] props = { "FrontPcb", "BackPcb" }; //排除掉，不能让前端看到的字段。为true的话就是只保留这些字段
-                        //jSetting.ContractResolver = new LimitPropsContractResolver(props, false);
+                    //    //plcCheckReadyTimer.Start();//开启板子到位检测
+                    //    allNum = 0;
+                    //    sw.Restart();
+                    //    nowPcb = startWork.Tag as Pcb;
+                    //    string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
+                    //    nowPcb.FrontPcb.savePath = path;
+                    //    Ftp.MakeDir(Ftp.ftpPath, nowPcb.Id); // Ftp生成当前板子目录
+                    //    if (!Directory.Exists(path))
+                    //    {
+                    //        Directory.CreateDirectory(path);
+                    //    }
+                    //    //JsonData<Pcb> jsonData = new JsonData<Pcb>();
+                    //    //jsonData.data = nowPcb;
+                    //    //jsonData.executionTime = 26;
+                    //    //jsonData.ngNum = nowPcb.results.Count;
+                    //    //var jSetting = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+                    //    //string[] props = { "FrontPcb", "BackPcb" }; //排除掉，不能让前端看到的字段。为true的话就是只保留这些字段
+                    //    //jSetting.ContractResolver = new LimitPropsContractResolver(props, false);
 
-                        //string res = JsonConvert.SerializeObject(jsonData, jSetting);
+                    //    //string res = JsonConvert.SerializeObject(jsonData, jSetting);
 
-                        //RabbitMQClientHandler.GetInstance(onRabbitmqMessageCallback, onRabbitmqConnectCallback)
-                        //.TopicExchangePublishMessageToServerAndWaitConfirm("", "work", "work", res);
+                    //    //RabbitMQClientHandler.GetInstance(onRabbitmqMessageCallback, onRabbitmqConnectCallback)
+                    //    //.TopicExchangePublishMessageToServerAndWaitConfirm("", "work", "work", res);
 
-                        //File.WriteAllText(Path.Combine(nowPcb.FrontPcb.savePath, "result.json"), Utils.ConvertJsonString(res));
+                    //    //File.WriteAllText(Path.Combine(nowPcb.FrontPcb.savePath, "result.json"), Utils.ConvertJsonString(res));
 
-                        //MySmartThreadPool.Instance().QueueWorkItem((p, frontForm, backForm) =>
-                        //{
-                        //    frontWorkingForm.BeginInvoke((Action)(() =>
-                        //    {
-                        //        frontWorkingForm.Ini();
-                        //        frontWorkingForm.ShowDefaultImage();
-                        //    }));
-                        //    backWorkingForm.BeginInvoke((Action)(() =>
-                        //    {
-                        //        backWorkingForm.Ini();
-                        //        backWorkingForm.ShowDefaultImage();
-                        //    }));
+                    //    //MySmartThreadPool.Instance().QueueWorkItem((p, frontForm, backForm) =>
+                    //    //{
+                    //    //    frontWorkingForm.BeginInvoke((Action)(() =>
+                    //    //    {
+                    //    //        frontWorkingForm.Ini();
+                    //    //        frontWorkingForm.ShowDefaultImage();
+                    //    //    }));
+                    //    //    backWorkingForm.BeginInvoke((Action)(() =>
+                    //    //    {
+                    //    //        backWorkingForm.Ini();
+                    //    //        backWorkingForm.ShowDefaultImage();
+                    //    //    }));
 
-                        //    string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
+                    //    //    string path = Path.Combine(Path.Combine(nowPcb.FrontPcb.savePath, DateTime.Now.ToString("yyyy-MM-dd")), nowPcb.Id);
 
-                        //    if (!Directory.Exists(path))
-                        //    {
-                        //        Directory.CreateDirectory(path);
-                        //    }
-                        for (int i = 0; i <= 59; i++)
-                        {
-                            Bitmap fBitmap = new Bitmap(Path.Combine(@"D:\Power-Ftp\test", "F" + i + ".jpg"));
-                            Bitmap bBitmap = new Bitmap(Path.Combine(@"D:\Power-Ftp\test", "B" + i + ".jpg"));
-                            nowPcb.FrontPcb.bitmaps.Enqueue(new BitmapInfo() { name = "F" + i + ".jpg", bitmap = fBitmap });
-                            nowPcb.FrontPcb.savePath = path;
-
-
-                            string path2 = Path.Combine(nowPcb.FrontPcb.savePath, "camera");
-                            if (!Directory.Exists(path2)) Directory.CreateDirectory(path2);
-
-                            MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
-                            {
-                                bitmap.Save(pa, ImageFormat.Jpeg);
-                                lock (nowPcb.FrontPcb)
-                                {
-                                    Aoi.StitchMain(nowPcb.FrontPcb, onStitchCallBack);
-                                }
-                            }, fBitmap, Path.Combine(path2, "F" + i + ".jpg"));
-
-                            nowPcb.BackPcb.bitmaps.Enqueue(new BitmapInfo() { name = "B" + i + ".jpg", bitmap = bBitmap });
-                            nowPcb.BackPcb.savePath = path;
+                    //    //    if (!Directory.Exists(path))
+                    //    //    {
+                    //    //        Directory.CreateDirectory(path);
+                    //    //    }
+                    //    for (int i = 0; i <= 59; i++)
+                    //    {
+                    //        Bitmap fBitmap = new Bitmap(Path.Combine(@"D:\Power-Ftp\test", "F" + i + ".jpg"));
+                    //        Bitmap bBitmap = new Bitmap(Path.Combine(@"D:\Power-Ftp\test", "B" + i + ".jpg"));
+                    //        nowPcb.FrontPcb.bitmaps.Enqueue(new BitmapInfo() { name = "F" + i + ".jpg", bitmap = fBitmap });
+                    //        nowPcb.FrontPcb.savePath = path;
 
 
-                            string path23 = Path.Combine(nowPcb.BackPcb.savePath, "camera");
-                            if (!Directory.Exists(path23)) Directory.CreateDirectory(path23);
+                    //        string path2 = Path.Combine(nowPcb.FrontPcb.savePath, "camera");
+                    //        if (!Directory.Exists(path2)) Directory.CreateDirectory(path2);
 
-                            MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
-                            {
-                                bitmap.Save(pa, ImageFormat.Jpeg);
-                                lock (nowPcb.BackPcb)
-                                {
-                                    Aoi.StitchMain(nowPcb.BackPcb, onStitchCallBack);
-                                }
-                            }, bBitmap, Path.Combine(path23, "B" + i + ".jpg"));
-                        }
-                        isIdle = false;
-                        //}, nowPcb, frontWorkingForm, backWorkingForm);
-                        //开始执行拍照
-                    }
+                    //        MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
+                    //        {
+                    //            bitmap.Save(pa, ImageFormat.Jpeg);
+                    //            lock (nowPcb.FrontPcb)
+                    //            {
+                    //                Aoi.StitchMain(nowPcb.FrontPcb, onStitchCallBack);
+                    //            }
+                    //        }, fBitmap, Path.Combine(path2, "F" + i + ".jpg"));
+
+                    //        nowPcb.BackPcb.bitmaps.Enqueue(new BitmapInfo() { name = "B" + i + ".jpg", bitmap = bBitmap });
+                    //        nowPcb.BackPcb.savePath = path;
+
+
+                    //        string path23 = Path.Combine(nowPcb.BackPcb.savePath, "camera");
+                    //        if (!Directory.Exists(path23)) Directory.CreateDirectory(path23);
+
+                    //        MySmartThreadPool.Instance().QueueWorkItem((bitmap, pa) =>
+                    //        {
+                    //            bitmap.Save(pa, ImageFormat.Jpeg);
+                    //            lock (nowPcb.BackPcb)
+                    //            {
+                    //                Aoi.StitchMain(nowPcb.BackPcb, onStitchCallBack);
+                    //            }
+                    //        }, bBitmap, Path.Combine(path23, "B" + i + ".jpg"));
+                    //    }
+                    //    isIdle = false;
+                    //    //}, nowPcb, frontWorkingForm, backWorkingForm);
+                    //    //开始执行拍照
+                    //}
                     #endregion
                     break;
-                case "模拟一块板子":
+                case "模拟一块板子1":
                     MySmartThreadPool.InstanceTest().QueueWorkItem(() =>
                     {
                         while (true)
