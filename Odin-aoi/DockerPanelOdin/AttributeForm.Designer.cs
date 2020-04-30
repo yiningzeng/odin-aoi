@@ -36,15 +36,15 @@
             this.propertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertyGrid.Location = new System.Drawing.Point(0, 0);
             this.propertyGrid.Name = "propertyGrid";
-            this.propertyGrid.Size = new System.Drawing.Size(147, 673);
+            this.propertyGrid.Size = new System.Drawing.Size(246, 673);
             this.propertyGrid.TabIndex = 2;
             // 
-            // ToolBarForm
+            // AttributeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(55)))));
-            this.ClientSize = new System.Drawing.Size(147, 673);
+            this.ClientSize = new System.Drawing.Size(246, 673);
             this.CloseButton = false;
             this.CloseButtonVisible = false;
             this.Controls.Add(this.propertyGrid);
@@ -57,7 +57,7 @@
             this.HideOnClose = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "ToolBarForm";
+            this.Name = "AttributeForm";
             this.ShowIcon = false;
             this.TabText = "工具箱";
             this.Text = "工具箱";

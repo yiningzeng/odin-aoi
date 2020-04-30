@@ -2,6 +2,7 @@
 using power_aoi.Tools;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -20,11 +21,12 @@ namespace power_aoi.Model
             public Bitmap bitmap { get; set; }
         }
         #region AI参数
-        public int equalDivision = 1; // #表示检测的图像按照边长等分的数量，=2的话就是4等分
-        public int overlap = 50; // #表示等分的时候重叠的区域
-        public bool saveCropImg = false; //#是否保存等分的图片
-        public bool detectMultiScale = false; // #开启多尺度检测的时候要把equalDivision设置为2
-        public float confidence = (float)0.01;
+        [DisplayName("几等分"), CategoryAttribute("外观"), DescriptionAttribute("文本")]
+        public int equalDivision { get; set; } = 1; // #表示检测的图像按照边长等分的数量，=2的话就是4等分
+        public int overlap { get; set; } = 50; // #表示等分的时候重叠的区域
+        public bool saveCropImg { get; set; } = false; //#是否保存等分的图片
+        public bool detectMultiScale { get; set; } = false; // #开启多尺度检测的时候要把equalDivision设置为2
+        public float confidence { get; set; } = (float)0.01;
         #endregion
 
         #region Plc参数
@@ -51,12 +53,12 @@ namespace power_aoi.Model
         #endregion
 
         #region 拼图参数
-        public double or_hl = 0.23; // lower bound for horizontal overlap ratio
-        public double or_hu = 0.24; // upper
-        public double or_vl = 0.065; // vertical
-        public double or_vu = 0.08;
-        public double dr_hu = 0.01; // upper bound for horizontal drift ratio
-        public double dr_vu = 0.01; //
+        public double or_hl { get; set; } = 0.23; // lower bound for horizontal overlap ratio
+        public double or_hu { get; set; } = 0.24; // upper
+        public double or_vl { get; set; } = 0.065; // vertical
+        public double or_vu { get; set; } = 0.08;
+        public double dr_hu { get; set; } = 0.01; // upper bound for horizontal drift ratio
+        public double dr_vu { get; set; } = 0.01; //
         public int allNum; // 图片总数
         public int allRows; // 总行数
         public int allCols; // 总列数
@@ -66,7 +68,7 @@ namespace power_aoi.Model
         public int trajectorySide; //主要用于拼图的时候切换对其边
         public Mat dst = null; // 最终输出大图
         public Rectangle roi = new Rectangle(); // 对齐的参考的区域
-        public double scale = 0.25;
+        public double scale { get; set; } = 0.25;
         public bool stitchEnd = false; //拼图结束的标示
         //图片队列
         public Queue<BitmapInfo> bitmaps = new Queue<BitmapInfo>();

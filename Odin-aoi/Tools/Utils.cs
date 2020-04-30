@@ -18,6 +18,21 @@ namespace power_aoi
 {
     public class Utils
     {
+        public static Rectangle RectangleF2Rectangle(RectangleF rectangleF)
+        {
+            return new Rectangle(Convert.ToInt32(rectangleF.X),
+                Convert.ToInt32(rectangleF.Y),
+                Convert.ToInt32(rectangleF.Width),
+                Convert.ToInt32(rectangleF.Height));
+        }
+
+        public static RectangleF Rectangle2RectangleF(Rectangle rectangle)
+        {
+            return new RectangleF(rectangle.X,
+                rectangle.Y,
+                rectangle.Width,
+                rectangle.Height);
+        }
         /// <summary>
         /// Json格式化输出
         /// </summary>

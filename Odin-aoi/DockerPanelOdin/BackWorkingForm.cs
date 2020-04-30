@@ -18,25 +18,45 @@ namespace power_aoi.DockerPanelOdin
         public BackWorkingForm()
         {
             InitializeComponent();
-            Ini();
+            Ini(false);
         }
 
-        public void Ini()
+        public void Ini(bool isEdit = false)
         {
             imgBoxWorking.Text = "";
-            imgBoxWorking.SelectionMode = Cyotek.Windows.Forms.ImageBoxSelectionMode.Rectangle;
             imgBoxWorking.ScaleText = true;
             imgBoxWorking.TextBackColor = Color.LightSeaGreen;
             imgBoxWorking.TextDisplayMode = Cyotek.Windows.Forms.ImageBoxGridDisplayMode.Client;
             imgBoxWorking.ForeColor = Color.Red;
+            if (isEdit)
+            {
+                imgBoxWorking.SelectionMode = Cyotek.Windows.Forms.ImageBoxSelectionMode.None;
+                imgBoxWorking.Enabled = true;
+                imgBoxWorking.DragHandleSize = 8;
+            }
+            else
+            {
+                imgBoxWorking.SelectionMode = Cyotek.Windows.Forms.ImageBoxSelectionMode.Rectangle;
+                imgBoxWorking.Enabled = false;
+                imgBoxWorking.DragHandleSize = 0;
+            }
         }
 
         #region Public Members
-        public void ShowDefaultImage()
+        public void ShowDefaultImage(string imagePath = "default")
         {
-            imgBoxWorking.Image = Image.FromFile(Application.StartupPath + "/DefaultImage/Back.jpg");
-            imgBoxWorking.ZoomToFit();
-            imgBoxWorking.Invalidate();
+            this.BeginInvoke((Action)(() => {
+                if (imagePath == "default")
+                {
+                    imgBoxWorking.Image = Image.FromFile(Application.StartupPath + "/DefaultImage/Back.jpg");
+                }
+                else
+                {
+                    imgBoxWorking.Image = Image.FromFile(imagePath);
+                }
+                imgBoxWorking.ZoomToFit();
+                imgBoxWorking.Invalidate();
+            }));
         }
         #endregion
     }

@@ -32,6 +32,7 @@
             this.pTitle = new System.Windows.Forms.Panel();
             this.pbClose = new System.Windows.Forms.PictureBox();
             this.lbTitle = new System.Windows.Forms.Label();
+            this.labelMessage = new System.Windows.Forms.Label();
             this.pMain.SuspendLayout();
             this.pTitle.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbClose)).BeginInit();
@@ -41,11 +42,12 @@
             // 
             this.pMain.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(55)))));
             this.pMain.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pMain.Controls.Add(this.labelMessage);
             this.pMain.Controls.Add(this.pTitle);
             this.pMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pMain.Location = new System.Drawing.Point(0, 0);
             this.pMain.Name = "pMain";
-            this.pMain.Size = new System.Drawing.Size(483, 398);
+            this.pMain.Size = new System.Drawing.Size(471, 121);
             this.pMain.TabIndex = 0;
             // 
             // pTitle
@@ -56,14 +58,14 @@
             this.pTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.pTitle.Location = new System.Drawing.Point(0, 0);
             this.pTitle.Name = "pTitle";
-            this.pTitle.Size = new System.Drawing.Size(481, 30);
+            this.pTitle.Size = new System.Drawing.Size(469, 30);
             this.pTitle.TabIndex = 0;
             // 
             // pbClose
             // 
             this.pbClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pbClose.Image = global::Odin_aoi.Properties.Resources.close;
-            this.pbClose.Location = new System.Drawing.Point(449, 0);
+            this.pbClose.Location = new System.Drawing.Point(437, 0);
             this.pbClose.Name = "pbClose";
             this.pbClose.Size = new System.Drawing.Size(27, 27);
             this.pbClose.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -77,14 +79,26 @@
             this.lbTitle.ForeColor = System.Drawing.Color.White;
             this.lbTitle.Location = new System.Drawing.Point(3, 6);
             this.lbTitle.Name = "lbTitle";
-            this.lbTitle.Size = new System.Drawing.Size(0, 16);
+            this.lbTitle.Size = new System.Drawing.Size(48, 16);
             this.lbTitle.TabIndex = 0;
+            this.lbTitle.Text = "提 醒";
+            // 
+            // labelMessage
+            // 
+            this.labelMessage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelMessage.Font = new System.Drawing.Font("宋体", 20F);
+            this.labelMessage.ForeColor = System.Drawing.Color.White;
+            this.labelMessage.Location = new System.Drawing.Point(0, 30);
+            this.labelMessage.Name = "labelMessage";
+            this.labelMessage.Padding = new System.Windows.Forms.Padding(10);
+            this.labelMessage.Size = new System.Drawing.Size(469, 89);
+            this.labelMessage.TabIndex = 2;
             // 
             // BasePopupForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(483, 398);
+            this.ClientSize = new System.Drawing.Size(471, 121);
             this.Controls.Add(this.pMain);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "BasePopupForm";
@@ -103,5 +117,6 @@
         private System.Windows.Forms.Panel pTitle;
         private System.Windows.Forms.Label lbTitle;
         private System.Windows.Forms.PictureBox pbClose;
+        private System.Windows.Forms.Label labelMessage;
     }
 }

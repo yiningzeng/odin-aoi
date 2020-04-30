@@ -110,11 +110,11 @@ namespace power_aoi
                 button.Location = new Point(7, 7 + i * (15 + 35));
                 button.Click += Button_Click;
                 button.Name = imageListToolBar.Images.Keys[i].ToString();
-                #if DEBUG
+#if DEBUG
                 Console.WriteLine("DEBUG:11111111111");
-                #else
+#else
                 if (button.Name.Contains("(debug)")) button.Visible = false;
-                #endif
+#endif
                 toolTip.SetToolTip(button, button.Name);
                 panelToolBar.Controls.Add(button);
             }
@@ -122,7 +122,7 @@ namespace power_aoi
             #region 初始化各页面窗体实例
             attributeForm.IniForm(this, frontWorkingForm);
             this.SizeChanged += Odin_SizeChanged;
-            menuStripControl.MouseDown += MenuStripControl_MouseDown;
+            menuStripControl.MouseDown += Control_MouseDown_Move;
             tsmClose.Click += TsmClose_Click;
             tsmMin.Click += TsmMin_Click;
             tsmSquare.Click += TsmSquare_Click;
@@ -131,6 +131,20 @@ namespace power_aoi
             dockPanel1.ActiveContentChanged += DockPanel1_ActiveContentChanged;
             //dockPanel1.ActivePaneChanged += DockPanel1_ActivePaneChanged;
             //frontWorkingForm.Activated += FrontWorkingForm_Activated;
+            toolStripEdit.Paint += ToolStripEdit_Paint;
+            toolStripEdit.MouseDown += Control_MouseDown_Move;
+
+            #region 编辑工具栏的事件
+            foreach(var i in toolStripEdit.Items)
+            {
+                try
+                {
+                    ToolStripButton toolStripButton = i as ToolStripButton;
+                    toolStripButton.Click += toolStripEditButton_Click;
+                }
+                catch { }
+            }
+            #endregion
         }
 
         private void DockPanel1_ActiveContentChanged(object sender, EventArgs e)
@@ -144,11 +158,11 @@ namespace power_aoi
                     break;
                 case "正面":
                     Console.WriteLine("frontform");
-                    attributeForm.ShowConfig(nowPcb.FrontPcb);
+                    //attributeForm.ShowConfig("", nowPcb.FrontPcb);
                     break;
                 case "反面":
                     Console.WriteLine("backform");
-                    attributeForm.ShowConfig(nowPcb.BackPcb);
+                    //attributeForm.ShowConfig("", nowPcb.BackPcb);
                     break;
             }
         }
@@ -1110,6 +1124,56 @@ namespace power_aoi
         }
 
         /// <summary>
+        /// 编辑工具栏按钮事件 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolStripEditButton_Click(object sender, EventArgs e)
+        {
+            ToolStripButton btn = (ToolStripButton)sender;
+            switch (btn.Text)
+            {
+                case "载入正面图":
+                    OpenFileDialog fileDialog = new OpenFileDialog();
+                    fileDialog.Filter = "图片|*.jpg;*.bmp;*.gif;*.png;*.jpeg";
+                    fileDialog.RestoreDirectory = false;
+                    if (fileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        frontWorkingForm.ShowDefaultImage(fileDialog.FileName);
+                    }
+                    break;
+                case "载入反面图":
+                    fileDialog = new OpenFileDialog();
+                    fileDialog.Filter = "图片|*.jpg;*.bmp;*.gif;*.png;*.jpeg";
+                    fileDialog.RestoreDirectory = false;
+                    if (fileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        backWorkingForm.ShowDefaultImage(fileDialog.FileName);
+                    }
+                    break;
+                case "新增Marker":
+                    MySmartThreadPool.Instance().QueueWorkItem(() =>
+                    {
+                        BasePopupForm basePopupForm = new BasePopupForm("新增Marker后，需要再标记一个对应的子板区域");
+                        basePopupForm.ShowDialog();
+                        frontWorkingForm.BeginInvoke((Action)(() =>
+                        {
+                            frontWorkingForm.imgBoxWorking.SelectionMode = Cyotek.Windows.Forms.ImageBoxSelectionMode.Rectangle;
+                        }));
+                        backWorkingForm.BeginInvoke((Action)(() =>
+                        {
+                            backWorkingForm.imgBoxWorking.SelectionMode = Cyotek.Windows.Forms.ImageBoxSelectionMode.Rectangle;
+                        }));
+                    });
+                    break;
+                case "测试":
+                    break;
+                case "运行":
+                    break;
+            }
+        }
+
+        /// <summary>
         /// 整合左侧功能性按钮事件
         /// </summary>
         /// <param name="sender"></param>
@@ -1157,26 +1221,37 @@ namespace power_aoi
                     break;
                 case "编程":
                     #region 编程操作
+                    #region 赋值窗体的
+                    frontWorkingForm.IniForm(this, attributeForm);
+                    #endregion
                     //MessageBox.Show("还在开发中", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
                     if (isIdle == false)
                     {
                         MessageBox.Show("程序运行中！请等空闲的时候操作！", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
                         return;
                     }
+                   
                     MySmartThreadPool.Instance().QueueWorkItem(() =>
                     {
                         frontWorkingForm.BeginInvoke((Action)(() =>
                         {
-                            frontWorkingForm.Ini();
+                            frontWorkingForm.Ini(true);
                             frontWorkingForm.ShowDefaultImage();
                         }));
                         backWorkingForm.BeginInvoke((Action)(() =>
                         {
-                            backWorkingForm.Ini();
+                            backWorkingForm.Ini(true);
                             backWorkingForm.ShowDefaultImage();
+                        }));
+                        this.BeginInvoke((Action)(() =>
+                        {
+                            panelEditBar.Visible = true;
+                            attributeForm.DockState = DockState.DockRight;
                         }));
                     });
                     #endregion
+                    //toolBarForm = new ToolBarForm() { TabText = "工具箱", CloseButton = true };
+                    //toolBarForm.Show(dockPanel1, DockState.Float);
                     break;
                 case "手动出板":
                     #region 手动出板
@@ -1446,6 +1521,20 @@ namespace power_aoi
         }
 
         /// <summary>
+        /// 去工具栏白边
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ToolStripEdit_Paint(object sender, PaintEventArgs e)
+        {
+            if ((sender as ToolStrip).RenderMode == ToolStripRenderMode.System)
+            {
+                Rectangle rect = new Rectangle(0, 0, this.toolStripEdit.Width, this.toolStripEdit.Height - 2);
+                e.Graphics.SetClip(rect);
+            }
+        }
+
+        /// <summary>
         /// 窗体放大缩小
         /// </summary>
         /// <param name="sender"></param>
@@ -1491,7 +1580,7 @@ namespace power_aoi
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MenuStripControl_MouseDown(object sender, MouseEventArgs e)
+        private void Control_MouseDown_Move(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {

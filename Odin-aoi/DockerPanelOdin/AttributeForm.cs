@@ -1,4 +1,5 @@
-﻿using power_aoi.Model;
+﻿using Odin_aoi.Model;
+using power_aoi.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,9 +22,16 @@ namespace power_aoi.DockerPanelOdin
             InitializeComponent();
         }
 
-        public void ShowConfig(OneStitchSidePcb oneStitchSidePcb)
+        public void ShowConfig(string from, object obj)
         {
-            propertyGrid.SelectedObject = oneStitchSidePcb;
+            switch (from)
+            {
+                case "编辑>正":
+                case "编辑>反":
+                    ChildrenPcbMarkerInfo childrenPcbMarkerInfo = obj as ChildrenPcbMarkerInfo;
+                    propertyGrid.SelectedObject = childrenPcbMarkerInfo;
+                    break;
+            }
         }
 
         public OneStitchSidePcb GetConfig()

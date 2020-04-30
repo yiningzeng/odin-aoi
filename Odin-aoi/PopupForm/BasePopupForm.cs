@@ -21,10 +21,11 @@ namespace power_aoi.PopupForm
             this.pbClose.Click += PbClose_Click;
         }
 
-        public BasePopupForm(string title)
+        public BasePopupForm(string message, string title="提 醒")
         {
             InitializeComponent();
             this.lbTitle.Text = title;
+            this.labelMessage.Text = message;
             this.pMain.MouseDown += StartWork_MouseDown;
             this.pTitle.MouseDown += StartWork_MouseDown;
             this.pbClose.Click += PbClose_Click;

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\EmguCV.3.1.0.1\build\EmguCV.props" Condition="Exists('..\packages\EmguCV.3.1.0.1\build\EmguCV.props')" />
   <Import Project="..\packages\EntityFramework.6.4.0\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.props')" />
@@ -289,6 +289,7 @@
     <Compile Include="Model\AoiModel.cs" />
     <Compile Include="Model\JsonData.cs" />
     <Compile Include="Model\OneStitchSidePcb.cs" />
+    <Compile Include="Model\PcbAlgorithmsInfo.cs" />
     <Compile Include="Model\PcbName.cs" />
     <Compile Include="Model\Pcb.cs" />
     <Compile Include="Model\Marker.cs" />
@@ -300,6 +301,12 @@
     </Compile>
     <Compile Include="Odin.Designer.cs">
       <DependentUpon>Odin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PopupForm\EditPopupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PopupForm\EditPopupForm.Designer.cs">
+      <DependentUpon>EditPopupForm.cs</DependentUpon>
     </Compile>
     <Compile Include="PopupForm\PlcErrorePopupForm.cs">
       <SubType>Form</SubType>
@@ -400,6 +407,9 @@
     <EmbeddedResource Include="Odin.resx">
       <DependentUpon>Odin.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="PopupForm\EditPopupForm.resx">
+      <DependentUpon>EditPopupForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="PopupForm\PlcErrorePopupForm.resx">
       <DependentUpon>PlcErrorePopupForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -453,6 +463,10 @@
   <ItemGroup>
     <Content Include="aa.ico" />
     <Content Include="Images\camera-fill.png" />
+    <None Include="Images\upload.png" />
+    <None Include="Images\component.png" />
+    <None Include="Images\play.png" />
+    <None Include="Images\infant.png" />
     <None Include="Images\user center.png" />
     <None Include="Images\password.png" />
     <None Include="Images\gift.png" />
