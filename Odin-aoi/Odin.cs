@@ -27,6 +27,8 @@ using System.Drawing.Imaging;
 using Newtonsoft.Json;
 using Odin_aoi.Tools;
 using static power_aoi.Model.OneStitchSidePcb;
+using Odin_aoi.Model;
+using Odin_aoi.Model.PowerAiRegions;
 
 namespace power_aoi
 {
@@ -907,6 +909,7 @@ namespace power_aoi
             Snowflake snowflake = new Snowflake(2);
             if (boxlist.bboxlist.Length > 0)
             {
+                List<PRegion> regions = new List<PRegion>();
                 for (int i = 0; i < boxlist.bboxlist.Length; i++)
                 {
                     if (boxlist.bboxlist[i].h == 0) break;
@@ -914,6 +917,31 @@ namespace power_aoi
                     {
                         string id = imgName.Replace(".jpg", "") + "(" + snowflake.nextId().ToString() + ")";
                         bbox_t bbox = boxlist.bboxlist[i];
+
+                        try
+                        {
+                            List<string> taggs = new List<string>();
+                            taggs.Add(names[(int)bbox.obj_id]);
+                            List<PRegion.PPoint> points = new List<PRegion.PPoint>();
+                            points.Add(new PRegion.PPoint() { x = bbox.x, y = bbox.y });
+                            points.Add(new PRegion.PPoint() { x = bbox.x + bbox.w, y = bbox.y });
+                            points.Add(new PRegion.PPoint() { x = bbox.x + bbox.w, y = bbox.y + bbox.h});
+                            points.Add(new PRegion.PPoint() { x = bbox.x, y = bbox.y + bbox.h });
+                            regions.Add(new PRegion()
+                            {
+                                boundingBox = new PRegion.BoundingBox() { width = bbox.w, height = bbox.h, left = bbox.x, top = bbox.y },
+                                id = snowflake.nextId().ToString(),
+                                tags = taggs,
+                                type = "RECTANGLE",
+                                points = points,
+                            });
+                        }
+                        catch (Exception er)
+                        {
+
+                        }
+
+
                         bbox.x = (uint)((bbox.x + startPoint.X) * scale) + (uint)scaleRect.X; // + (uint)scaleRect.X;
                         bbox.y = (uint)((bbox.y + startPoint.Y) * scale) + (uint)scaleRect.Y; // + (uint)scaleRect.Y;
                         bbox.w = (uint)(bbox.w * scale);
@@ -930,11 +958,43 @@ namespace power_aoi
                             PartImagePath = id + ".jpg",
                             CreateTime = DateTime.Now,
                         };
+                        
+
                         lock (nowPcb.results)
                         {
                             nowPcb.results.Add(result);
                         }
                     }
+                }
+                if (startPoint.X == 0 && startPoint.Y == 0)
+                {
+                    MySmartThreadPool.Instance().QueueWorkItem((sn, name, rr) =>
+                    {
+                        try
+                        {
+                            string resName = sn.nextId().ToString();
+                            string imgFile = Path.Combine(nowPcb.FrontPcb.savePath, name);
+                            if (File.Exists(imgFile))//必须判断要复制的文件是否存在
+                            {
+                                File.Copy(imgFile, "D:/NGImages/" + resName + ".jpg", true);//三个参数分别是源文件路径，存储路径，若存储路径有相同文件是否替换
+                            }
+                            PAsset asset = new PAsset();
+                            asset.format = "jpg";
+                            asset.id = sn.nextId().ToString();
+                            asset.name = resName + ".jpg";
+                            asset.path = "file:${path}" + asset.name;
+                            asset.size = new PAsset.Size() { width = 2456, height = 2056 };
+                            asset.state = 2;
+                            asset.type = 1;
+
+                            AssetsRegions assetsRegions = new AssetsRegions();
+                            assetsRegions.regions = rr;
+                            assetsRegions.asset = asset;
+                            assetsRegions.version = "aoi auto";
+                            File.WriteAllText("D:/NGImages/" + resName + ".json", Utils.ConvertJsonString(JsonConvert.SerializeObject(assetsRegions)));
+                        }
+                        catch(Exception er) { }
+                    }, snowflake, imgName, regions);
                 }
             }
         }

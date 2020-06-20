@@ -281,11 +281,14 @@
       <DependentUpon>Login.cs</DependentUpon>
     </Compile>
     <Compile Include="Model\AoiModel.cs" />
+    <Compile Include="Model\PowerAiRegions\PAsset.cs" />
+    <Compile Include="Model\PowerAiRegions\AssetsRegions.cs" />
     <Compile Include="Model\JsonData.cs" />
     <Compile Include="Model\OneStitchSidePcb.cs" />
     <Compile Include="Model\PcbName.cs" />
     <Compile Include="Model\Pcb.cs" />
     <Compile Include="Model\Marker.cs" />
+    <Compile Include="Model\PowerAiRegions\PRegion.cs" />
     <Compile Include="Model\Result.cs" />
     <Compile Include="Model\User.cs" />
     <Compile Include="Model\UserGroup.cs" />

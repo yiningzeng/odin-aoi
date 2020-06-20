@@ -1,9 +1,12 @@
 ﻿
 using Emgu.CV;
 using Emgu.CV.Structure;
+using Newtonsoft.Json;
+using Odin_aoi.Model;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 
 using System.Windows.Forms;
@@ -41,6 +44,17 @@ namespace power_aoi
             if (Exist)//如果没有运行
             {
                 newMutex.ReleaseMutex();//运行新窗体
+
+                //FileStream fs = new FileStream(@"C:\Users\Administrator\Desktop\索米数据\413\00cd7bf1403263185524d5ee5311f830-asset.json", FileMode.Open);
+                //StreamReader fileStream = new StreamReader(fs);
+                //string str = "";
+                //string line;
+                //while ((line = fileStream.ReadLine()) != null)
+                //{
+                //    str += line;
+                //}
+                //AssetsRegions assetsRegions = JsonConvert.DeserializeObject<AssetsRegions>(str);
+
                 Login login = new Login();
                 DialogResult dialogResult = login.ShowDialog();
                 login.Close();
