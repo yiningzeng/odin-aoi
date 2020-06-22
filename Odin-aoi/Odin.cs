@@ -920,21 +920,44 @@ namespace power_aoi
 
                         try
                         {
-                            List<string> taggs = new List<string>();
-                            taggs.Add(names[(int)bbox.obj_id]);
-                            List<PRegion.PPoint> points = new List<PRegion.PPoint>();
-                            points.Add(new PRegion.PPoint() { x = bbox.x, y = bbox.y });
-                            points.Add(new PRegion.PPoint() { x = bbox.x + bbox.w, y = bbox.y });
-                            points.Add(new PRegion.PPoint() { x = bbox.x + bbox.w, y = bbox.y + bbox.h});
-                            points.Add(new PRegion.PPoint() { x = bbox.x, y = bbox.y + bbox.h });
-                            regions.Add(new PRegion()
+                            string tag = names[(int)bbox.obj_id];
+                            bool nContinue = false;
+                            switch (tag)
                             {
-                                boundingBox = new PRegion.BoundingBox() { width = bbox.w, height = bbox.h, left = bbox.x, top = bbox.y },
-                                id = snowflake.nextId().ToString(),
-                                tags = taggs,
-                                type = "RECTANGLE",
-                                points = points,
-                            });
+                                case "dianzhuang-yiwu":
+                                case "huashang":
+                                case "quesun":
+                                    if (bbox.prob > 0.2) nContinue = true;
+                                    break;
+                                case "jiban-duanlie":
+                                    if (bbox.prob > 0.5) nContinue = true;
+                                    break;
+                                case "xianwei":
+                                case "xigao-wuran":
+                                case "xizhu":
+                                case "yanghua":
+                                case "zhanxi":
+                                    if (bbox.prob > 0.1) nContinue = true;
+                                    break;
+                            }
+                            if (nContinue)
+                            {
+                                List<string> taggs = new List<string>();
+                                taggs.Add(tag);
+                                List<PRegion.PPoint> points = new List<PRegion.PPoint>();
+                                points.Add(new PRegion.PPoint() { x = bbox.x, y = bbox.y });
+                                points.Add(new PRegion.PPoint() { x = bbox.x + bbox.w, y = bbox.y });
+                                points.Add(new PRegion.PPoint() { x = bbox.x + bbox.w, y = bbox.y + bbox.h });
+                                points.Add(new PRegion.PPoint() { x = bbox.x, y = bbox.y + bbox.h });
+                                regions.Add(new PRegion()
+                                {
+                                    boundingBox = new PRegion.BoundingBox() { width = bbox.w, height = bbox.h, left = bbox.x, top = bbox.y },
+                                    id = snowflake.nextId().ToString(),
+                                    tags = taggs,
+                                    type = "RECTANGLE",
+                                    points = points,
+                                });
+                            }
                         }
                         catch (Exception er)
                         {
@@ -966,7 +989,7 @@ namespace power_aoi
                         }
                     }
                 }
-                if (startPoint.X == 0 && startPoint.Y == 0)
+                if (startPoint.X == 0 && startPoint.Y == 0 && regions.Count > 0)
                 {
                     MySmartThreadPool.Instance().QueueWorkItem((sn, name, rr) =>
                     {
@@ -1329,7 +1352,7 @@ namespace power_aoi
                     }
                     #endregion
                     break;
-                case "模拟一块板子":
+                case "模拟一块板子(debug)":
                     MySmartThreadPool.InstanceTest().QueueWorkItem(() =>
                     {
                         while (true)
