@@ -910,6 +910,7 @@ namespace power_aoi
             if (boxlist.bboxlist.Length > 0)
             {
                 List<PRegion> regions = new List<PRegion>();
+                string strTags = "";
                 for (int i = 0; i < boxlist.bboxlist.Length; i++)
                 {
                     if (boxlist.bboxlist[i].h == 0) break;
@@ -944,6 +945,7 @@ namespace power_aoi
                             {
                                 List<string> taggs = new List<string>();
                                 taggs.Add(tag);
+                                strTags += tag + ",";
                                 List<PRegion.PPoint> points = new List<PRegion.PPoint>();
                                 points.Add(new PRegion.PPoint() { x = bbox.x, y = bbox.y });
                                 points.Add(new PRegion.PPoint() { x = bbox.x + bbox.w, y = bbox.y });
@@ -1003,12 +1005,13 @@ namespace power_aoi
                             }
                             PAsset asset = new PAsset();
                             asset.format = "jpg";
-                            asset.id = sn.nextId().ToString();
+                            asset.id = resName;
                             asset.name = resName + ".jpg";
                             asset.path = "file:${path}" + asset.name;
                             asset.size = new PAsset.Size() { width = 2456, height = 2056 };
                             asset.state = 2;
                             asset.type = 1;
+                            asset.tags = strTags.Substring(0, strTags.Length - 1);
 
                             AssetsRegions assetsRegions = new AssetsRegions();
                             assetsRegions.regions = rr;

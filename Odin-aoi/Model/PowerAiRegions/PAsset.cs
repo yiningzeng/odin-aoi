@@ -21,5 +21,6 @@ namespace Odin_aoi.Model.PowerAiRegions
         public Size size { get; set; }
         public int state { get; set; }
         public int type { get; set; }
+        public string tags { get; set; }
     }
 }
